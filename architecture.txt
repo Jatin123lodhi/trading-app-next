@@ -1,0 +1,33 @@
+-db setup and connection using docker
+-implemented connection caching
+
+
+Trading App Structure:
+├── Landing Page (SSG) - Static marketing page
+├── Login/Register (SSG) - Static forms
+├── Dashboard (SSR) - Personalized user data
+├── Portfolio (SSR) - User-specific holdings
+├── Stocks/[symbol] (ISR) - Stock details, revalidate every 60s
+├── Market (ISR) - Market overview, revalidate every 30s
+├── News (ISR) - Financial news, revalidate every 5min
+└── Trading Interface (CSR) - Live WebSocket updates
+
+
+API Routes Structure:
+├── /api/auth
+│   ├── POST /register - Create new user account
+│   ├── POST /login - Authenticate user
+│   └── POST /logout - End user session
+├── /api/user
+│   ├── GET /profile - Get user profile data
+│   └── GET /portfolio - Get user holdings
+├── /api/stocks
+│   ├── GET /[symbol] - Get stock details
+│   └── GET /search?q={query} - Search stocks
+├── /api/market
+│   └── GET /overview - Get market indices & top movers
+├── /api/trading
+│   ├── POST /buy - Execute buy order
+│   └── POST /sell - Execute sell order
+└── /api/news
+    └── GET / - Get financial news feed
