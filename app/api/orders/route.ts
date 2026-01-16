@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { z } from "zod"
 import mongoose from "mongoose";
 import Market from "@/models/Market";
 import connectDB from "@/lib/mongodb";
@@ -70,7 +69,11 @@ export async function POST(request: Request) {
         }
 
         // lock the balance
-        await Wallet.findByIdAndUpdate(wallet._id, {
+        await Wallet.findOneAndUpdate(
+          {
+            _id: wallet._id,
+            userId: auth.userId
+          }, {
           $inc: {
             lockedBalance: amount
           }
@@ -80,6 +83,7 @@ export async function POST(request: Request) {
         const order = await Order.create([{
           marketId,
           userId,
+          walletId,
           amount,
           outcome,
           status: 'locked'

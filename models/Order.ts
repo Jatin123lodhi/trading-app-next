@@ -6,6 +6,11 @@ const orderSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     },
+    walletId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Wallet'
+    },
     marketId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,

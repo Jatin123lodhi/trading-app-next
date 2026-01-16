@@ -103,5 +103,33 @@ If any validation fails, the entire transaction rolls back automatically, preven
 ---
 *Day 3 complete - Money in motion! 💸*
 
+
+# 🏆 Day 4: Market Settlement & Order Management
+
+### ✅ Completed Features
+
+**Market Settlement Engine**: Admin endpoint to settle markets, determine winners, and distribute payouts using pool-based calculations with MongoDB transactions.
+
+**Order Lifecycle**: Implemented order cancellation with balance restoration and individual order retrieval with ownership validation.
+
+**Wallet Deposits**: Added balance top-up functionality with transaction tracking.
+
+Key implementations:
+- **Order Cancellation**: Atomic wallet unlock on order cancellation
+- **Settlement Algorithm**: Pool-based payout distribution across winners
+- **Bulk Operations**: Mass order/wallet updates using `bulkWrite` 
+- **Dynamic Routes**: GET `/api/market/[id]` and `/api/orders/[id]` endpoints
+
+### 🔥 Technical Challenge
+
+Orchestrating atomic updates across Markets, Orders, and Wallets in a single transaction - calculate pools, update statuses, distribute winnings, all with rollback safety.
+
+### 📚 Key Learnings
+- Pool-based payout algorithms
+- MongoDB bulk operations with sessions
+- Financial state management patterns
+
+---
+*Day 4 complete - Markets settled, winners paid! 💰*
 ---
 *Building in public - One day at a time 💪*
