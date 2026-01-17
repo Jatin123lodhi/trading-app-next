@@ -15,8 +15,9 @@ export async function GET(
 ) {
   try {
     await connectDB();
-
+    console.log("GET request received");
     const { id } = await params;
+    console.log(id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {

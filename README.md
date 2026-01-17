@@ -131,4 +131,38 @@ Orchestrating atomic updates across Markets, Orders, and Wallets in a single tra
 
 ---
 *Day 4 complete - Markets settled, winners paid! 💰*
+
+
+# 🎨 Day 5: Frontend Integration - Minimal UI
+
+### ✅ Completed Features
+
+**UI Implementation**: Connected backend APIs with a clean, minimal interface using shadcn/ui components and Tailwind CSS.
+
+Built pages:
+- **Login/Register**: Form-based authentication with JWT token storage
+- **Dashboard**: User profile, wallet balances, and markets list with click-through navigation
+- **Market Page**: Individual market details with interactive trading panel
+
+**Trading Panel Component**: 
+- Wallet selection dropdown
+- Amount input with YES/NO outcome buttons
+- Real-time order placement via `/api/orders`
+- Toast notifications for feedback
+
+### 🔥 Technical Challenge
+
+Implementing Next.js hybrid rendering - Server Components for data fetching, Client Components for interactivity (forms, trading). Handled JWT auth state with localStorage while leveraging server-side rendering benefits.
+
+### 📚 Key Learnings
+- Next.js Server/Client Component patterns
+- JWT token management in browser storage
+- Component composition in App Router
+- shadcn/ui integration
+
+### 📸 Screenshots
+*(Screenshots will be added)*
+
+---
+*Day 5 complete - Backend meets Frontend! 🎨*
 *Building in public - One day at a time 💪*
