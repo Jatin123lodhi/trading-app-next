@@ -27,6 +27,10 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           message: result.error.issues,
+          errors: result.error.issues.map(issue => ({
+            field: issue.path.join('.'),
+            message: issue.message
+          }))
         },
         { status: 422 }
       ); // invalid input

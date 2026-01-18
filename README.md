@@ -165,4 +165,30 @@ Implementing Next.js hybrid rendering - Server Components for data fetching, Cli
 
 ---
 *Day 5 complete - Backend meets Frontend! 🎨*
+
+
+# 🔧 Day 6: Fixes & Improvements
+
+### ✅ Completed Features
+
+**Settlement Engine Fix**: Fixed critical transaction bugs - wallets now properly update on market settlement with correct payout calculations.
+
+**Wallet Management UI**: Added wallet creation and balance top-up interface directly in dashboard.
+
+**Smart UX Enhancements**:
+- Order list auto-refreshes after placement
+- Bet buttons disabled until wallet selected
+- Validation errors display as readable toast messages
+
+### 🔥 Technical Challenge
+
+Settlement was silently failing - wallet updates weren't part of the transaction. Added missing session parameters and fixed the payout math (winners get bet + share of losing pool).
+
+### 📚 Key Learnings
+- MongoDB transaction session propagation
+- React refresh patterns with prop triggers
+- Zod error formatting for better UX
+
+---
+*Day 6 complete - Production-ready! 🎯*
 *Building in public - One day at a time 💪*

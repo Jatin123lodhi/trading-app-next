@@ -41,7 +41,7 @@ const Register = () => {
                     <Input width="full" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     <Input width="full" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                     <Button type="submit" className="mt-4 cursor-pointer">Register</Button>
-                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-blue-500">Login</Link></p>
+                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-blue-500 ">Login</Link></p>
                 </form>
             </div>
         </div>

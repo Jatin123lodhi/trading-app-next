@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import Link from "next/link";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ const Login = () => {
             toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     }
-    
+
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <div className="flex flex-col gap-2 border p-6 rounded shadow">
@@ -41,8 +42,9 @@ const Login = () => {
                 <form className="flex flex-col gap-2 w-[300px] " onSubmit={handleSubmit}>
                     <Input width="full" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     <Input width="full" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <Button type="submit" className="mt-4">Login</Button>
+                    <Button type="submit" className="mt-4 cursor-pointer">Login</Button>
                 </form>
+                <p className="text-sm text-center mt-4">Don&apos;t have an account? <Link href="/register" className="text-blue-500">Register</Link></p>
             </div>
         </div>
     )

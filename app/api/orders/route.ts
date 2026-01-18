@@ -125,9 +125,16 @@ export async function GET(request: Request){
         message: auth.error
       }, {status: auth.status})
     }
+
+    const { searchParams } = new URL(request.url);
+    const marketId = searchParams.get('marketId')
+    console.log(marketId, '--------marketId')
+    // build filter
+    const filters: Record<string, string> = {};
+    if(marketId) filters.marketId = marketId;
     
-    const orders = await Order.find({userId: auth.userId}); 
-    
+    const orders = await Order.find({userId: auth.userId,...filters}); 
+    console.log(orders,' ---order in route')
     return NextResponse.json({
       message: "Order fetched!",
       data: orders

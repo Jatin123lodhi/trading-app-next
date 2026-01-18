@@ -131,7 +131,7 @@ export async function PATCH(
       const lockedOrders = await Order.find({
         marketId: id,
         status: "locked",
-      });
+      }).session(session);
 
       const winningOrders = lockedOrders.filter(
         (o) => o.outcome === winningOutcome
@@ -149,7 +149,7 @@ export async function PATCH(
       }, 0);
 
       if (winningPool === 0 && loosingPool === 0) {
-        // should we do with transaction here abort or commit
+        await session.commitTransaction();
         return NextResponse.json(
           {
             message: "No orders to settle",
@@ -187,8 +187,10 @@ export async function PATCH(
           { _id: { $in: orderIds } },
           { status: "cancelled" }
         ).session(session);
-
-        return;
+        await session.commitTransaction();
+        return NextResponse.json({
+          message: "Market cancelled - no opposing pool to settle against",
+        }, { status: 200 });
       }
 
       // calculate platform fee
@@ -214,9 +216,10 @@ export async function PATCH(
       }
 
       winningOrders.forEach((order) => {
-        const orderAmt = order.amount;
-        const userShare = orderAmt / distributablePool;
-        const winnings = distributablePool * userShare;
+        const orderAmt = parseFloat(order.amount);
+        const userShare = orderAmt / winningPool;
+        const profit = distributablePool * userShare;
+        const totalPayout = orderAmt + profit;
 
         walletUpdates.push({
           updateOne: {
@@ -225,7 +228,7 @@ export async function PATCH(
             },
             update: {
               $inc: {
-                balance: winnings,
+                balance: totalPayout,
                 lockedBalance: -orderAmt,
               },
             },
@@ -252,7 +255,7 @@ export async function PATCH(
 
       const orderIds = lockedOrders.map((o) => o._id);
 
-      await Wallet.bulkWrite(walletUpdates);
+      await Wallet.bulkWrite(walletUpdates, { session });
       await Order.updateMany(
         { _id: { $in: orderIds } },
         { status: "settled" },

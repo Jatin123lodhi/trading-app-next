@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
+import { useRouter } from "next/navigation";
 import {
     Select,
     SelectContent,
@@ -13,8 +13,23 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import OrdersList from "./OrdersList";
 
-const WalletSelect = ({ wallets, selectedWallet, setSelectedWallet }: { wallets: { _id: string, balance: number, currency: string }[], selectedWallet: string, setSelectedWallet: (wallet: string) => void }) => {
+const WalletSelect = ({ selectedWallet, setSelectedWallet }: { selectedWallet: string, setSelectedWallet: (wallet: string) => void }) => {
+    const [wallets, setWallets] = useState<{ _id: string, balance: number, currency: string }[]>([]);
+    useEffect(() => {
+        const fetchWallets = async () => {
+            const response = await fetch("/api/wallets", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+            setWallets(data.data);
+        }
+        fetchWallets();
+    }, []);
     return (
         <Select value={selectedWallet} onValueChange={setSelectedWallet}>
             <SelectTrigger className="w-full">
@@ -32,13 +47,29 @@ const WalletSelect = ({ wallets, selectedWallet, setSelectedWallet }: { wallets:
     )
 }
 
-export default function TradingPanel({ market }: { market: { _id: string, title: string, description: string, category: string, endDate: Date, winningOutcome: string } }) {
+export default function TradingPanel({ market }: { market: { _id: string, title: string, description: string, category: string, endDate: Date, winningOutcome: string, status: "open" | "closed" | "settled" } }) {
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
-    const [wallets, setWallets] = useState<{ _id: string, balance: number, currency: string }[]>([]);
     const [selectedWallet, setSelectedWallet] = useState("");
+    const [user, setUser] = useState<{ email: string, role: string, userId: string } | null>(null);
+    const [refreshOrders, setRefreshOrders] = useState(0);
+    const router = useRouter();
 
-    const handleOrder = async (outcome: "yes" | "no") => {
+    useEffect(() => {
+        const fetchUser = async () => {
+            const response = await fetch("/api/auth/me", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message);
+            setUser(data.data);
+        }
+        fetchUser();
+    }, []);
+
+    const handleOrder = async (outcome: "Yes" | "No") => {
         setLoading(true);
         try {
             const response = await fetch("/api/orders", {
@@ -56,6 +87,10 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message);
+            // need to fetch orders list which in parent component
+            setAmount("");
+            setSelectedWallet("");
+            setRefreshOrders(prev => prev + 1); // Trigger orders refresh
             toast.success("Order placed!");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Failed to place order");
@@ -64,56 +99,80 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
         }
     };
 
-    const fetchWallets = async () => {
+    const handleSettleMarket = async (winningOutcome: "Yes" | "No") => {
         try {
-            const response = await fetch("/api/wallets", {
+            const response = await fetch(`/api/market/${market._id}`, {
+                method: "PATCH",
                 headers: {
+                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
+                },
+                body: JSON.stringify({ winningOutcome })
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message);
-            console.log(data.data);
-            setWallets(data.data);
+            toast.success("Market settled!");
+            router.push("/dashboard");
+            fetchMarkets();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to fetch wallets");
+            toast.error(error instanceof Error ? error.message : "Failed to settle market");
         }
-    };
+    }
 
-    useEffect(() => {
-        fetchWallets();
-    }, [market]);
+    const fetchMarkets = async () => {
+
+        const response = await fetch("/api/market", {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+        return data.data;
+    }
 
     return (
         <div className="border p-4 rounded-md">
-            <h3 className="font-bold mb-4">Place Your Bet</h3>
-            <Input
-                type="number"
-                placeholder="Amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="mb-4"
-            />
-            <div className="mb-4">
-                <WalletSelect wallets={wallets} selectedWallet={selectedWallet} setSelectedWallet={setSelectedWallet} />
-            </div>
-            <div className="flex gap-2">
-                <Button
-                    onClick={() => handleOrder("yes")}
-                    disabled={loading || !amount}
-                    className="flex-1"
-                >
-                    Buy YES
-                </Button>
-                <Button
-                    onClick={() => handleOrder("no")}
-                    disabled={loading || !amount}
-                    variant="outline"
-                    className="flex-1"
-                >
-                    Buy NO
-                </Button>
-            </div>
+            {user?.role === 'user' ? <div>
+                <h3 className="font-bold mb-4">Place Your Bet</h3>
+                <Input
+                    type="number"
+                    placeholder="Amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="mb-4"
+                />
+                <div className="mb-4">
+                    <WalletSelect selectedWallet={selectedWallet} setSelectedWallet={setSelectedWallet} />
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => handleOrder("Yes")}
+                        disabled={loading || !amount || !selectedWallet}
+                        className="flex-1 cursor-pointer"
+                    >
+                        Buy Yes
+                    </Button>
+                    <Button
+                        onClick={() => handleOrder("No")}
+                        disabled={loading || !amount || !selectedWallet}
+                        variant="outline"
+                        className="flex-1 cursor-pointer"
+                    >
+                        Buy No
+                    </Button>
+                </div>
+            </div> : market.status === 'closed' ? <div>
+                <h3 className="font-bold mb-4">Market is closed</h3>
+
+            </div> : <div>
+                <div className="flex gap-2">
+                    <Button className="cursor-pointer" onClick={() => handleSettleMarket("No")}>Settle Market with No</Button>
+                    <Button className="cursor-pointer" onClick={() => handleSettleMarket("Yes")}>Settle Market with Yes</Button>
+                </div>
+            </div>}
+            {/* client component to show the orders */}
+            <OrdersList marketId={market._id} refreshTrigger={refreshOrders} />
         </div>
     );
 }
