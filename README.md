@@ -163,6 +163,9 @@ Implementing Next.js hybrid rendering - Server Components for data fetching, Cli
 ### 📸 Screenshots
 *(Screenshots will be added)*
 
+<img width="1461" height="880" alt="image" src="https://github.com/user-attachments/assets/748b56c2-dedc-4ada-a840-f4c51864be31" />
+<img width="1461" height="880" alt="image" src="https://github.com/user-attachments/assets/b9ba4a39-5f8a-4a71-b747-b1da6f5cfa03" />
+
 ---
 *Day 5 complete - Backend meets Frontend! 🎨*
 
