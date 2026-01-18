@@ -194,4 +194,45 @@ Settlement was silently failing - wallet updates weren't part of the transaction
 
 ---
 *Day 6 complete - Production-ready! 🎯*
+
+# 🔐 Day 7: Middleware & Route Protection
+
+### ✅ Completed Features
+
+**Authentication Middleware**: Implemented Next.js middleware for automatic route protection and authentication state management with Edge Runtime compatibility.
+
+**Cookie-Based Auth**: Migrated from localStorage-only to httpOnly cookies for enhanced security against XSS attacks.
+
+**Logout System**: Built server-side logout endpoint to properly clear httpOnly cookies.
+
+Key implementations:
+- **Route Protection**: Middleware automatically redirects unauthenticated users from protected routes (`/dashboard`, `/create-market`, `/market/*`) to login page
+- **Auth Route Guards**: Logged-in users automatically redirected from `/login` and `/register` to dashboard
+- **Redirect Preservation**: Saves intended destination in query params (`?redirect=/dashboard`) to redirect users after login
+- **Edge Runtime**: Used `jose` library instead of `jsonwebtoken` for Edge Runtime compatibility
+- **Security Hardening**: 
+  - httpOnly cookies prevent JavaScript access
+  - Conditional `secure` flag based on environment (HTTPS in production)
+  - `sameSite: strict` for CSRF protection
+
+### 🔥 Technical Challenge
+
+Next.js middleware runs in Edge Runtime, which doesn't support Node.js-specific libraries like `jsonwebtoken`. Had to switch to `jose` library and convert JWT verification to work with Web Crypto APIs. Also discovered that httpOnly cookies require server-side deletion, necessitating a logout API endpoint.
+
+### 📚 Key Learnings
+- Edge Runtime vs Node.js runtime differences
+- httpOnly cookie security patterns
+- Next.js middleware execution model and config matchers
+- JWT verification with `jose` library (Web Crypto API)
+- Redirect flow patterns with query parameters
+- Open redirect vulnerability prevention
+
+### 🔒 Security Improvements
+- Tokens stored in httpOnly cookies (not accessible via JavaScript)
+- Environment-aware secure flag for HTTPS
+- Validation of redirect URLs to prevent open redirect attacks
+- Automatic token verification on every protected route
+
+---
+*Day 7 complete - Secure by default! 🔐*
 *Building in public - One day at a time 💪*

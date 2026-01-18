@@ -41,9 +41,26 @@ const Dashboard = () => {
     }, []);
 
     // handle logout
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        router.push("/login");
+    const handleLogout = async () => {
+        try{
+
+            // call logout api
+            const response = await fetch("/api/auth/logout", {
+                method: "POST",
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            toast.success("Logged out successfully");
+            localStorage.removeItem("token");
+            router.push("/login");
+        }catch(error){
+            console.error("Logout error:", error)
+            toast.error("Failed to logout");
+            localStorage.removeItem("token");
+            router.push("/login");
+        }
     };
 
     // fetch markets

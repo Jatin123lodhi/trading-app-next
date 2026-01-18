@@ -57,12 +57,12 @@ export async function POST(request: Request) {
     });
 
     // store token in cookie
-    // response.cookies.set("token", token, {
-    //   httpOnly: true, // JS cannot access (XSS protection)
-    //   secure: true, // HTTPS only in production
-    //   sameSite: "strict", // CSRF protection
-    //   maxAge: 60 * 60 * 24 * 7, // 7 days
-    // });
+    response.cookies.set("token", token, {
+      httpOnly: true, // JS cannot access (XSS protection)
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: "strict", // CSRF protection
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
 
     return response;
   } catch (error) {

@@ -3,13 +3,14 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,15 +26,16 @@ const Login = () => {
             }
             toast.success("Login successful");
             localStorage.setItem("token", data.token);
-            router.push("/dashboard");
+            const redirectTo = searchParams.get('redirect') || '/dashboard'
+            router.push(redirectTo);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong");
         }
     }
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <div className="flex flex-col gap-2 border p-6 rounded shadow">
+        <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+            <div className="flex flex-col gap-2 border p-6 rounded shadow  bg-white text-black">
                 <h1 className="text-2xl font-bold text-center mb-2">Login</h1>
                 <div>
                     <h2 className="text-center font-semibold mb-2">Trading app</h2>

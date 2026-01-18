@@ -30,8 +30,8 @@ const Register = () => {
     }
     
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <div className="flex flex-col gap-2 border p-6 rounded shadow">
+        <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+            <div className="flex flex-col gap-2 border p-6 rounded shadow  bg-white text-black">
                 <h1 className="text-2xl font-bold text-center mb-2">Register</h1>
                 <div>
                     <h2 className="text-center font-semibold mb-2">Trading app</h2>
