@@ -7,7 +7,7 @@ import Wallet from "@/models/Wallet";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{id: string}> }
 ) {
   try {
     await connectDB();
@@ -21,8 +21,8 @@ export async function PATCH(
       );
     }
 
-    const { orderId } = params;
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    const { id } = await params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         {
           message: "Invalid order Id",
@@ -39,7 +39,7 @@ export async function PATCH(
       // update order status to cancelled
       const updatedOrder = await Order.findOneAndUpdate(
         {
-          _id: orderId,
+          _id: id,
           userId: auth.userId,
           status: "locked",
         },
