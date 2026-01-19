@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 const protectedRoute = ['/dashboard', '/create-market', '/market']
 const authRoutes = ['/login', '/register']
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     const token = request.cookies.get('token')?.value;
