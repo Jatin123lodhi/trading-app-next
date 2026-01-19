@@ -1,9 +1,12 @@
 import { verifyAuth } from "@/lib/auth";
+import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
+
+    await connectDB();
     // verify the user
     const auth = await verifyAuth(request);
     if (auth.error) {
