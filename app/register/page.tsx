@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { Spinner } from "@/components/ui/spinner";
 
 const Register = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
-
+    const [isLoading, setIsLoading] = useState(false);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            setIsLoading(true);
             const response = await fetch("/api/auth/register", {
                 method: "POST",
                 body: JSON.stringify({ email, password, role: "user" }),
@@ -26,6 +28,8 @@ const Register = () => {
             router.push("/login");
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -40,8 +44,10 @@ const Register = () => {
                 <form className="flex flex-col gap-2 w-[300px] " onSubmit={handleSubmit}>
                     <Input width="full" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     <Input width="full" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <Button type="submit" className="mt-4 cursor-pointer">Register</Button>
-                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-blue-500 ">Login</Link></p>
+                    <Button disabled={isLoading} type="submit" className="mt-4 cursor-pointer flex items-center gap-2">
+                       {isLoading ? <Spinner /> : null} 
+                        Register</Button>
+                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-blue-500 hover:underline">Login</Link></p>
                 </form>
             </div>
         </div>

@@ -13,6 +13,10 @@ const Dashboard = () => {
     const [wallets, setWallets] = useState<{ _id: string, balance: number, currency: string, lockedBalance: number }[]>([]);
     const [status, setStatus] = useState<"open" | "closed" | "settled">("open");
     
+    // Loading states
+    const [loadingWallets, setLoadingWallets] = useState(true);
+    const [loadingMarkets, setLoadingMarkets] = useState(true);
+    
     // Wallet creation states
     const [showCreateWallet, setShowCreateWallet] = useState(false);
     const [newWalletCurrency, setNewWalletCurrency] = useState<"INR" | "USD">("INR");
@@ -65,6 +69,7 @@ const Dashboard = () => {
 
     // fetch markets
     const fetchMarkets = async () => {
+        setLoadingMarkets(true);
         try {
             const response = await fetch("/api/market");
             const data = await response.json();
@@ -75,6 +80,8 @@ const Dashboard = () => {
             setMarkets(data.data);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoadingMarkets(false);
         }
     };
 
@@ -84,17 +91,24 @@ const Dashboard = () => {
 
     // fetch wallets
     const fetchWallets = async () => {
-        const response = await fetch(`/api/wallets`, {
-            headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+        setLoadingWallets(true);
+        try {
+            const response = await fetch(`/api/wallets`, {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
             }
-        });
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.message);
+            console.log(data.data);
+            setWallets(data.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoadingWallets(false);
         }
-        console.log(data.data);
-        setWallets(data.data);
     };
 
     useEffect(() => {
@@ -222,7 +236,20 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {wallets.length > 0 ? (
+                {loadingWallets ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="border p-4 rounded-md animate-pulse">
+                                <div className="mb-3">
+                                    <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-28"></div>
+                                </div>
+                                <div className="h-8 bg-gray-200 rounded w-full"></div>
+                            </div>
+                        ))}
+                    </div>
+                ) : wallets.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {wallets.map((wallet) => (
                             <div className="border p-4 rounded-md" key={wallet._id}>
@@ -303,15 +330,31 @@ const Dashboard = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).map((market) => (
-                        <div onClick={() => router.push(`/market/${market._id}`)} className="border p-4 rounded-md cursor-pointer hover:bg-gray-100" key={market._id}>
-                            <h2 className="text-lg font-bold">{market.title}</h2>
-                            <p className="text-sm text-gray-500"> Description: {market.description}</p>
-                            <p className="text-sm text-gray-500"> Category: {market.category}</p>
-                            <p className="text-sm text-gray-500"> End Date: {new Date(market.endDate).toLocaleDateString()}</p>
-                            {market.winningOutcome && <p className="text-sm text-gray-500"> Winning Outcome: {market.winningOutcome}</p>}
-                        </div>
-                    ))}
+                    {loadingMarkets ? (
+                        <>
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <div key={i} className="border p-4 rounded-md animate-pulse w-full md:w-[calc(50%-0.25rem)] lg:w-[calc(33.333%-0.33rem)]">
+                                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                                </div>
+                            ))}
+                        </>
+                    ) : markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).length > 0 ? (
+                        markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).map((market) => (
+                            <div onClick={() => router.push(`/market/${market._id}`)} className="border p-4 rounded-md cursor-pointer hover:bg-gray-100 transition-colors duration-200" key={market._id}>
+                                <h2 className="text-lg font-bold">{market.title}</h2>
+                                <p className="text-sm text-gray-500"> Description: {market.description}</p>
+                                <p className="text-sm text-gray-500"> Category: {market.category}</p>
+                                <p className="text-sm text-gray-500"> End Date: {new Date(market.endDate).toLocaleDateString()}</p>
+                                {market.winningOutcome && <p className="text-sm text-gray-500"> Winning Outcome: {market.winningOutcome}</p>}
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-sm text-gray-500 w-full text-center py-8">No markets found for this status.</p>
+                    )}
                 </div>
             </main>
         </div>

@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link";
+import { Spinner } from "@/components/ui/spinner";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const router = useRouter();
     const searchParams = useSearchParams();
-
+    const [isLoading, setIsLoading] = useState(false);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            setIsLoading(true);
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 body: JSON.stringify({ email, password }),
@@ -30,6 +32,8 @@ const Login = () => {
             router.push(redirectTo);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -44,9 +48,11 @@ const Login = () => {
                 <form className="flex flex-col gap-2 w-[300px] " onSubmit={handleSubmit}>
                     <Input width="full" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                     <Input width="full" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <Button type="submit" className="mt-4 cursor-pointer">Login</Button>
+                    <Button disabled={isLoading} type="submit" className="mt-4 cursor-pointer flex items-center gap-2">
+                       {isLoading ? <Spinner /> : null} 
+                        Login</Button>
                 </form>
-                <p className="text-sm text-center mt-4">Don&apos;t have an account? <Link href="/register" className="text-blue-500">Register</Link></p>
+                <p className="text-sm text-center mt-4">Don&apos;t have an account? <Link href="/register" className="text-blue-500 hover:underline">Register</Link></p>
             </div>
         </div>
     )

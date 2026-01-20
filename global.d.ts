@@ -5,5 +5,5 @@ declare global{
         promise: Promise<Mongoose> | null;
     }
 }
-
+import '@testing-library/jest-dom'
 export {}
