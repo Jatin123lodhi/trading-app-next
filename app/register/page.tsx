@@ -34,12 +34,14 @@ const Register = () => {
     }
     
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
-            <div className="flex flex-col gap-2 border p-6 rounded shadow  bg-white text-black">
-                <h1 className="text-2xl font-bold text-center mb-2">Register</h1>
-                <div>
-                    <h2 className="text-center font-semibold mb-2">Trading app</h2>
-                    <p className="text-sm text-center mb-4">Welcome! Please enter your details.</p>
+        <div className="relative text-white h-screen w-screen overflow-hidden" style={{ cursor: 'crosshair' }}>
+            {/* Content Overlay */}
+            <div className="relative z-10 flex flex-col items-center justify-center h-screen">
+                <div className="flex flex-col gap-2 p-8 rounded-2xl bg-black/50 backdrop-blur-md border border-white/20 shadow-2xl text-white">
+                <h1 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent pb-1 inline-block w-full">Register</h1>
+                <div className="flex flex-col items-center justify-center">
+                    <Link href={'/'} className="text-center font-bold mb-2 text-xl bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 bg-clip-text text-transparent hover:from-red-600 hover:via-pink-600 hover:to-purple-600 transition-all">PredictX</Link>
+                    <p className="text-sm text-center mb-4 text-gray-300">Start your prediction trading journey today.</p>
                 </div>
                 <form className="flex flex-col gap-2 w-[300px] " onSubmit={handleSubmit}>
                     <Input width="full" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -47,8 +49,9 @@ const Register = () => {
                     <Button disabled={isLoading} type="submit" className="mt-4 cursor-pointer flex items-center gap-2">
                        {isLoading ? <Spinner /> : null} 
                         Register</Button>
-                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-blue-500 hover:underline">Login</Link></p>
+                    <p className="text-sm text-center mt-2">Already have an account? <Link href="/login" className="text-pink-500 hover:text-pink-400 hover:underline transition-colors">Login</Link></p>
                 </form>
+            </div>
             </div>
         </div>
     )

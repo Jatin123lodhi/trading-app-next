@@ -179,20 +179,20 @@ const Dashboard = () => {
     // filter the markets by status open, closed, settled
 
     return (
-        <div>
-            <header className="border p-4 flex justify-between items-center">
-                <h1 className="text-xl font-bold">Trading App</h1>
-                <div className="flex items-center gap-2">
-                    <p className="text-sm text-gray-500">Welcome, {user?.email} ({user?.role})</p>
+        <div className="min-h-screen bg-gray-50">
+            <header className="bg-white border-b shadow-sm p-4 flex justify-between items-center">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 bg-clip-text text-transparent">PredictX</h1>
+                <div className="flex items-center gap-4">
+                    <p className="text-sm text-gray-600">Welcome, <span className="font-semibold text-gray-800">{user?.email}</span> <span className="text-xs text-gray-500">({user?.role})</span></p>
                     
-                    <Button variant="outline" className="cursor-pointer" onClick={handleLogout}>Logout</Button>
+                    <Button variant="outline" className="cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors" onClick={handleLogout}>Logout</Button>
                 </div>
             </header>
 
             {/* wallet balance */}
-            {user?.role === 'user' && <div className="border p-4 rounded-md m-4">
+            {user?.role === 'user' && <div className="bg-white border border-gray-200 p-6 rounded-lg m-4 shadow-sm">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold">Wallet Balance</h2>
+                    <h2 className="text-xl font-bold text-gray-800">Wallet Balance</h2>
                     <Button onClick={() => setShowCreateWallet(!showCreateWallet)} className="cursor-pointer">
                         {showCreateWallet ? "Cancel" : "Create Wallet"}
                     </Button>
@@ -200,8 +200,8 @@ const Dashboard = () => {
 
                 {/* Create wallet form */}
                 {showCreateWallet && (
-                    <div className="border p-4 rounded-md mb-4 bg-gray-50">
-                        <h3 className="font-semibold mb-3">Create New Wallet</h3>
+                    <div className="border border-pink-200 p-4 rounded-lg mb-4 bg-pink-50">
+                        <h3 className="font-semibold mb-3 text-gray-800">Create New Wallet</h3>
                         <div className="flex gap-2 items-end">
                             <div className="flex-1">
                                 <label className="text-sm text-gray-600 mb-1 block">Initial Balance</label>
@@ -252,11 +252,11 @@ const Dashboard = () => {
                 ) : wallets.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {wallets.map((wallet) => (
-                            <div className="border p-4 rounded-md" key={wallet._id}>
+                            <div className="border border-gray-200 p-5 rounded-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-shadow" key={wallet._id}>
                                 <div className="mb-3">
-                                    <p className="text-lg font-semibold">{wallet.currency}</p>
-                                    <p className="text-sm text-gray-600">Balance: {wallet.balance.toFixed(2)}</p>
-                                    <p className="text-sm text-gray-600">Locked: {wallet.lockedBalance.toFixed(2)}</p>
+                                    <p className="text-2xl font-bold text-gray-800">{wallet.currency}</p>
+                                    <p className="text-sm text-gray-600 mt-1">Balance: <span className="font-semibold text-green-600">{wallet.balance.toFixed(2)}</span></p>
+                                    <p className="text-sm text-gray-600">Locked: <span className="font-semibold text-orange-600">{wallet.lockedBalance.toFixed(2)}</span></p>
                                 </div>
                                 
                                 {/* Add balance section */}
@@ -311,11 +311,11 @@ const Dashboard = () => {
 
 
             <main className="p-4">
-                <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-bold mb-2">Markets</h2>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold text-gray-800">Markets</h2>
                     <div className="flex items-center gap-2">
                         {/* a button to create a new market only admin can see  */}
-                        {user?.role === 'admin' && <Button onClick={() => router.push("/create-market")}>Create Market</Button>}
+                        {user?.role === 'admin' && <Button onClick={() => router.push("/create-market")} className="cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white border-0">Create Market</Button>}
                         <Select value={status} onValueChange={(value) => setStatus(value as "open" | "closed" | "settled")}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a status" />
@@ -344,12 +344,12 @@ const Dashboard = () => {
                         </>
                     ) : markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).length > 0 ? (
                         markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).map((market) => (
-                            <div onClick={() => router.push(`/market/${market._id}`)} className="border p-4 rounded-md cursor-pointer hover:bg-gray-100 transition-colors duration-200" key={market._id}>
-                                <h2 className="text-lg font-bold">{market.title}</h2>
-                                <p className="text-sm text-gray-500"> Description: {market.description}</p>
-                                <p className="text-sm text-gray-500"> Category: {market.category}</p>
-                                <p className="text-sm text-gray-500"> End Date: {new Date(market.endDate).toLocaleDateString()}</p>
-                                {market.winningOutcome && <p className="text-sm text-gray-500"> Winning Outcome: {market.winningOutcome}</p>}
+                            <div onClick={() => router.push(`/market/${market._id}`)} className="bg-white border border-gray-200 p-5 rounded-lg cursor-pointer hover:shadow-lg hover:border-pink-300 transition-all duration-200" key={market._id}>
+                                <h2 className="text-lg font-bold text-gray-800 mb-2">{market.title}</h2>
+                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Description:</span> {market.description}</p>
+                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Category:</span> {market.category}</p>
+                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">End Date:</span> {new Date(market.endDate).toLocaleDateString()}</p>
+                                {market.winningOutcome && <p className="text-sm text-green-600 font-semibold mt-2">Winning Outcome: {market.winningOutcome}</p>}
                             </div>
                         ))
                     ) : (

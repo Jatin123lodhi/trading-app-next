@@ -256,4 +256,29 @@ Next.js middleware runs in Edge Runtime, which doesn't support Node.js-specific 
 
 ---
 *Day 8 complete - Details matter! ✨*
+
+# 🌃 Day 9: 3D Landing Page with Three.js
+
+### ✅ Completed Features
+
+**Cyberpunk City Background**: Integrated Three.js (via CDN) to create an immersive 3D animated cityscape on landing pages.
+
+**Interactive 3D Scene**:
+- Mouse/touch-responsive camera rotation
+- Animated buildings with particle effects and dynamic lighting
+- Conditional rendering (landing, login, register pages only)
+- Glassmorphism UI overlay with backdrop blur
+
+### 🔥 Technical Challenge
+
+Loading Three.js from CDN with Next.js `Script` component while managing React strict mode double-mounting. Implemented proper cleanup with `useRef` to prevent memory leaks and duplicate scene initialization.
+
+### 📚 Key Learnings
+- Three.js integration in Next.js App Router
+- CDN-based library loading for reduced bundle size
+- Animation frame management and scene cleanup
+- Combining 3D backgrounds with modern UI patterns
+
+---
+*Day 9 complete - Visual impact unlocked! 🌃*
 *Building in public - One day at a time 💪*
