@@ -278,6 +278,7 @@ Loading Three.js from CDN with Next.js `Script` component while managing React s
 - CDN-based library loading for reduced bundle size
 - Animation frame management and scene cleanup
 - Combining 3D backgrounds with modern UI patterns
+<img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/9cd0d3cf-1775-493c-8c67-52b95e1587fe" />
 
 ---
 *Day 9 complete - Visual impact unlocked! 🌃*
