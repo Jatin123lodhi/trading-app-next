@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
 export default function CityBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneInitialized = useRef(false);
   const cleanupFn = useRef<(() => void) | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Wait for THREE to be available
@@ -231,6 +232,7 @@ export default function CityBackground() {
 
       // ANIMATE
       let animationId: number;
+      let firstRender = true;
       const animate = () => {
         animationId = requestAnimationFrame(animate);
 
@@ -244,6 +246,12 @@ export default function CityBackground() {
 
         camera.lookAt(city.position);
         renderer.render(scene, camera);
+
+        // Hide loader after first render
+        if (firstRender) {
+          firstRender = false;
+          setTimeout(() => setIsLoading(false), 100);
+        }
       };
 
       // START functions
@@ -310,9 +318,30 @@ export default function CityBackground() {
           console.log('Three.js loaded');
         }}
       />
+      
+      {/* Loader */}
+      <div
+        className={`fixed top-0 left-0 w-full h-full -z-10 flex items-center justify-center transition-opacity duration-500 ${
+          isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{ backgroundColor: '#F02050', cursor: 'crosshair' }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative w-16 h-16">
+            {/* Spinning loader */}
+            <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-t-white border-r-white/60 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-white font-medium text-lg animate-pulse">Loading Experience...</p>
+        </div>
+      </div>
+
+      {/* Three.js Canvas */}
       <div
         ref={mountRef}
-        className="fixed top-0 left-0 w-full h-full -z-10"
+        className={`fixed top-0 left-0 w-full h-full -z-10 transition-opacity duration-500 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
         style={{ cursor: 'crosshair' }}
       />
     </>

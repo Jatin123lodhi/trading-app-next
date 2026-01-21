@@ -1,4 +1,3 @@
-import OrdersList from "@/components/OrdersList";
 import TradingPanel from "@/components/TradingPanel";
 
 const fetchMarket = async (marketId: string) => {
