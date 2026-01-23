@@ -28,6 +28,19 @@ const marketSchema = new mongoose.Schema({
     winningOutcome: {
         type: String,
         enum: ['Yes', 'No']
+    },
+    totalBetAmount: {
+        type: {
+            yes: {
+                type: Number,
+                default: 0
+            },
+            no: {
+                type: Number,
+                default: 0
+            }
+        },
+        default: () => ({ yes: 0, no: 0 })
     }
 }, {timestamps: true})
 

@@ -89,6 +89,28 @@ export async function POST(request: Request) {
           status: 'locked'
         }], { session })
 
+        // update the market count
+        const market = await Market.findOneAndUpdate(
+          {
+            _id: marketId
+          },
+          {
+            $inc: {
+              'totalBetAmount.yes': outcome === 'Yes' ? amount: 0,
+              'totalBetAmount.no': outcome === 'No' ? amount: 0
+            }
+          },
+          { session }
+        )
+        console.log(market, '--market yes or no while order')
+
+        if(!market){
+          await session.abortTransaction();
+          return NextResponse.json({
+            message: 'Failed to update market'
+          }, { status: 500 })
+        }
+
         await session.commitTransaction()
 
         return NextResponse.json({

@@ -282,4 +282,32 @@ Loading Three.js from CDN with Next.js `Script` component while managing React s
 
 ---
 *Day 9 complete - Visual impact unlocked! 🌃*
+
+# 📊 Day 10: Real-Time Market Updates with Smart Polling
+
+### ✅ Completed Features
+
+**Real-Time Data Sync**: Implemented automatic market updates to display live bet amounts and probability percentages as users place orders across the platform.
+
+**Smart Polling Strategy**: Dashboard automatically refreshes market data every 5 seconds without disrupting the user experience.
+
+### 🔥 Technical Challenge
+
+**SSE vs Polling Decision**: Initially explored Server-Sent Events (SSE) for real-time updates, but discovered Vercel's serverless architecture has critical limitations:
+
+**Vercel Constraints**:
+- Function timeout: 10s (Hobby) / 60s (Pro) / 5min (Enterprise max)
+- Each SSE connection blocks a serverless execution slot
+- Connections forcibly closed after timeout
+- Not designed for persistent connections
+
+**Why SSE Doesn't Scale on Vercel**:
+```
+❌ 10k users with SSE = 10k blocked serverless executions
+❌ Connections die after 60 seconds max
+❌ Cost: Extremely expensive (pay per execution time)
+```
+
+---
+*Day 10 complete - Real-time data without the real-time server! 📊*
 *Building in public - One day at a time 💪*

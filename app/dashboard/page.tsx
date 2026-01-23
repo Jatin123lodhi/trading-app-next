@@ -9,7 +9,7 @@ import { toast } from "sonner";
 const Dashboard = () => {
     const router = useRouter();
     const [user, setUser] = useState<{ email: string, role: string, userId: string } | null>(null);
-    const [markets, setMarkets] = useState<{ _id: string, title: string, description: string, category: string, endDate: Date, winningOutcome: string, status: "open" | "closed" | "settled" }[]>([]);
+    const [markets, setMarkets] = useState<{ _id: string, title: string, description: string, category: string, endDate: Date, winningOutcome: string, status: "open" | "closed" | "settled", totalBetAmount: { yes: number, no: number} }[]>([]);
     const [wallets, setWallets] = useState<{ _id: string, balance: number, currency: string, lockedBalance: number }[]>([]);
     const [status, setStatus] = useState<"open" | "closed" | "settled">("open");
     
@@ -27,6 +27,7 @@ const Dashboard = () => {
     const [addBalanceWalletId, setAddBalanceWalletId] = useState<string | null>(null);
     const [addBalanceAmount, setAddBalanceAmount] = useState("");
     const [addingBalance, setAddingBalance] = useState(false);
+
     // fetch user details
     useEffect(() => {
         const fetchUser = async () => {
@@ -68,8 +69,10 @@ const Dashboard = () => {
     };
 
     // fetch markets
-    const fetchMarkets = async () => {
-        setLoadingMarkets(true);
+    const fetchMarkets = async (showLoading = true) => {
+        if (showLoading) {
+            setLoadingMarkets(true);
+        }
         try {
             const response = await fetch("/api/market");
             const data = await response.json();
@@ -81,13 +84,23 @@ const Dashboard = () => {
         } catch (error) {
             console.log(error);
         } finally {
-            setLoadingMarkets(false);
+            if (showLoading) {
+                setLoadingMarkets(false);
+            }
         }
     };
 
+    // Initial fetch - show loading
     useEffect(() => {
-        fetchMarkets();
+        fetchMarkets(true);
     }, [user]);
+
+    // Polling for real-time updates - NO loading state
+    useEffect(() => {
+        if(status !== 'open') return;
+        const interval = setInterval(() => fetchMarkets(false), 5000);
+        return () => clearInterval(interval);
+    }, [status])
 
     // fetch wallets
     const fetchWallets = async () => {
@@ -343,15 +356,23 @@ const Dashboard = () => {
                             ))}
                         </>
                     ) : markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).length > 0 ? (
-                        markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).map((market) => (
-                            <div onClick={() => router.push(`/market/${market._id}`)} className="bg-white border border-gray-200 p-5 rounded-lg cursor-pointer hover:shadow-lg hover:border-pink-300 transition-all duration-200" key={market._id}>
-                                <h2 className="text-lg font-bold text-gray-800 mb-2">{market.title}</h2>
-                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Description:</span> {market.description}</p>
-                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Category:</span> {market.category}</p>
-                                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">End Date:</span> {new Date(market.endDate).toLocaleDateString()}</p>
-                                {market.winningOutcome && <p className="text-sm text-green-600 font-semibold mt-2">Winning Outcome: {market.winningOutcome}</p>}
-                            </div>
-                        ))
+                        markets.filter((market) => market.status.toLowerCase() === status.toLowerCase()).map((market) => {
+                            const totalBets = market.totalBetAmount.yes + market.totalBetAmount.no;
+                            const yesProb  = totalBets > 0 ? Math.round((market.totalBetAmount.yes / totalBets) * 100): 50;
+                            const noProb = totalBets > 0 ? Math.round((market.totalBetAmount.no / totalBets) * 100) : 50;
+                            return (
+                                <div onClick={() => router.push(`/market/${market._id}`)} className="bg-white border border-gray-200 p-5 rounded-lg cursor-pointer hover:shadow-lg hover:border-pink-300 transition-all duration-200" key={market._id}>
+                                    <h2 className="text-lg font-bold text-gray-800 mb-2">{market.title}</h2>
+                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Description:</span> {market.description}</p>
+                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Category:</span> {market.category}</p>
+                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">End Date:</span> {new Date(market.endDate).toLocaleDateString()}</p>
+                                    {market.winningOutcome && <p className="text-sm text-green-600 font-semibold mt-2">Winning Outcome: {market.winningOutcome}</p>}
+                                    <div className="flex items-center gap-2">
+                                        <div className="text-sm text-gray-600">Yes: ₹{market.totalBetAmount.yes} ({yesProb}%) </div> <div className="text-sm text-gray-600">No: ₹{market.totalBetAmount.no} ({noProb}%)</div>
+                                    </div>
+                                </div>
+                            )
+                        })
                     ) : (
                         <p className="text-sm text-gray-500 w-full text-center py-8">No markets found for this status.</p>
                     )}
