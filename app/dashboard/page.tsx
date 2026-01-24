@@ -5,28 +5,45 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api";
+
+// Type definition
+type Market = {
+    _id: string;
+    title: string;
+    description: string;
+    category: string;
+    endDate: Date;
+    winningOutcome: string;
+    status: 'open' | 'closed' | 'settled';
+    totalBetAmount: { yes: number; no: number }
+}
+
+type Wallet = {
+    _id: string;
+    balance: number;
+    currency: string;
+    lockedBalance: number;
+};
+
+type CreateWalletData = {currency: string, balance: number}
 
 const Dashboard = () => {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [user, setUser] = useState<{ email: string, role: string, userId: string } | null>(null);
-    const [markets, setMarkets] = useState<{ _id: string, title: string, description: string, category: string, endDate: Date, winningOutcome: string, status: "open" | "closed" | "settled", totalBetAmount: { yes: number, no: number} }[]>([]);
-    const [wallets, setWallets] = useState<{ _id: string, balance: number, currency: string, lockedBalance: number }[]>([]);
     const [status, setStatus] = useState<"open" | "closed" | "settled">("open");
     
-    // Loading states
-    const [loadingWallets, setLoadingWallets] = useState(true);
-    const [loadingMarkets, setLoadingMarkets] = useState(true);
     
     // Wallet creation states
     const [showCreateWallet, setShowCreateWallet] = useState(false);
     const [newWalletCurrency, setNewWalletCurrency] = useState<"INR" | "USD">("INR");
     const [newWalletBalance, setNewWalletBalance] = useState("");
-    const [creatingWallet, setCreatingWallet] = useState(false);
     
     // Add balance states
     const [addBalanceWalletId, setAddBalanceWalletId] = useState<string | null>(null);
     const [addBalanceAmount, setAddBalanceAmount] = useState("");
-    const [addingBalance, setAddingBalance] = useState(false);
 
     // fetch user details
     useEffect(() => {
@@ -68,128 +85,75 @@ const Dashboard = () => {
         }
     };
 
-    // fetch markets
-    const fetchMarkets = async (showLoading = true) => {
-        if (showLoading) {
-            setLoadingMarkets(true);
-        }
-        try {
-            const response = await fetch("/api/market");
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-            console.log(data.data);
-            setMarkets(data.data);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            if (showLoading) {
-                setLoadingMarkets(false);
-            }
-        }
-    };
 
-    // Initial fetch - show loading
-    useEffect(() => {
-        fetchMarkets(true);
-    }, [user]);
+    const {
+        data: markets = [],
+        isLoading: loadingMarkets
+    } = useQuery<Market[]>({
+        queryKey: ["markets"], // unique key for this query
+        queryFn: () => apiClient<Market[]>('/api/market'), // function that fetches the data
+        refetchInterval: status === 'open' ? 5000 : false, // auto polling when status is open
+        enabled: !!user, // only run when user exists
+    })
 
-    // Polling for real-time updates - NO loading state
-    useEffect(() => {
-        if(status !== 'open') return;
-        const interval = setInterval(() => fetchMarkets(false), 5000);
-        return () => clearInterval(interval);
-    }, [status])
-
-    // fetch wallets
-    const fetchWallets = async () => {
-        setLoadingWallets(true);
-        try {
-            const response = await fetch(`/api/wallets`, {
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-            console.log(data.data);
-            setWallets(data.data);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoadingWallets(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchWallets();
-    }, [user]);
-
-    // create wallet
-    const handleCreateWallet = async () => {
-        setCreatingWallet(true);
-        try {
-            const response = await fetch("/api/wallets", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify({
-                    currency: newWalletCurrency,
-                    balance: parseFloat(newWalletBalance)
-                })
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-            toast.success("Wallet created successfully!");
+    const {
+        data: wallets = [],
+        isLoading: loadingWallets
+    } = useQuery<Wallet[]>({
+        queryKey: ['wallets'],
+        queryFn: () => apiClient<Wallet[]>('/api/wallets'),
+        enabled: !!user,
+    });
+    
+    const createWalletMutation = useMutation({
+        mutationFn: (data: CreateWalletData) => apiClient('/api/wallets', {method: 'POST', data}),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wallets'] }); // auto refetch!
+            toast.success('Wallet created!')
+            // reset form state
             setShowCreateWallet(false);
             setNewWalletBalance("");
-            setNewWalletCurrency("INR");
-            fetchWallets(); // Refresh wallets list
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to create wallet");
-        } finally {
-            setCreatingWallet(false);
+            setNewWalletCurrency('INR')
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || 'Failed to create wallet');
         }
-    };
+    })
 
-    // add balance to wallet
-    const handleAddBalance = async () => {
-        if (!addBalanceWalletId) return;
-        setAddingBalance(true);
-        try {
-            const response = await fetch(`/api/wallets/${addBalanceWalletId}/transactions`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body: JSON.stringify({
-                    amount: parseFloat(addBalanceAmount)
-                })
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
+    const handleCreateWallet = () => {
+        createWalletMutation.mutate({
+            currency: newWalletCurrency,
+            balance: parseFloat(newWalletBalance)
+        })
+    }
+    
+    // Add balance mutation
+    const addBalanceMutation = useMutation({
+        mutationFn: ({ walletId, amount }: { walletId: string; amount: number }) =>
+            apiClient(`/api/wallets/${walletId}/transactions`, {
+                method: 'POST',
+                data: { amount }
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['wallets'] });
             toast.success("Balance added successfully!");
             setAddBalanceWalletId(null);
             setAddBalanceAmount("");
-            fetchWallets(); // Refresh wallets list
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to add balance");
-        } finally {
-            setAddingBalance(false);
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to add balance");
         }
+    });
+
+    const handleAddBalance = () => {
+        if (!addBalanceWalletId) return;
+        addBalanceMutation.mutate({
+            walletId: addBalanceWalletId,
+            amount: parseFloat(addBalanceAmount)
+        });
     };
 
-    // filter the markets by status open, closed, settled
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -240,10 +204,10 @@ const Dashboard = () => {
                             </div>
                             <Button 
                                 onClick={handleCreateWallet} 
-                                disabled={creatingWallet || !newWalletBalance || parseFloat(newWalletBalance) <= 0}
+                                disabled={createWalletMutation.isPending || !newWalletBalance || parseFloat(newWalletBalance) <= 0}
                                 className="cursor-pointer"
                             >
-                                {creatingWallet ? "Creating..." : "Create"}
+                                {createWalletMutation.isPending ? "Creating..." : "Create"}
                             </Button>
                         </div>
                     </div>
@@ -285,11 +249,11 @@ const Dashboard = () => {
                                         <div className="flex gap-2">
                                             <Button 
                                                 onClick={handleAddBalance}
-                                                disabled={addingBalance || !addBalanceAmount || parseFloat(addBalanceAmount) <= 0}
+                                                disabled={addBalanceMutation.isPending || !addBalanceAmount || parseFloat(addBalanceAmount) <= 0}
                                                 className="flex-1 cursor-pointer"
                                                 size="sm"
                                             >
-                                                {addingBalance ? "Adding..." : "Confirm"}
+                                                {addBalanceMutation.isPending ? "Adding..." : "Confirm"}
                                             </Button>
                                             <Button 
                                                 onClick={() => {
