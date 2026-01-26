@@ -7,8 +7,21 @@ export default function CityBackground() {
   const sceneInitialized = useRef(false);
   const cleanupFn = useRef<(() => void) | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [canMount, setCanMount] = useState(false);
+
+  // Add delay before mounting to ensure previous cleanup is complete
+  useEffect(() => {
+    const mountTimer = setTimeout(() => {
+      setCanMount(true);
+    }, 100);
+    
+    return () => clearTimeout(mountTimer);
+  }, []);
 
   useEffect(() => {
+    // Only proceed if we're allowed to mount
+    if (!canMount) return;
+
     // Wait for THREE to be available
     const initThreeJS = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -259,23 +272,58 @@ export default function CityBackground() {
       init();
       animate();
 
-      // Cleanup
+      // Enhanced Cleanup - dispose everything properly
       const cleanup = () => {
-        cancelAnimationFrame(animationId);
+        console.log('Cleaning up Three.js scene');
+        
+        // Cancel animation first
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+        }
+        
+        // Remove event listeners
         window.removeEventListener('resize', onWindowResize);
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('touchstart', onDocumentTouchStart);
         window.removeEventListener('touchmove', onDocumentTouchMove);
+        
+        // Dispose of geometries and materials
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        scene.traverse((object: any) => {
+          if (object.geometry) {
+            object.geometry.dispose();
+          }
+          if (object.material) {
+            const material = object.material;
+            if (Array.isArray(material)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              material.forEach((mat: any) => mat.dispose());
+            } else {
+              material.dispose();
+            }
+          }
+        });
+        
+        // Remove canvas from DOM
         if (mountRef.current && renderer.domElement) {
           try {
             mountRef.current.removeChild(renderer.domElement);
           } catch {
-            // Element might already be removed
             console.log('Canvas already removed');
           }
         }
+        
+        // Dispose renderer
         renderer.dispose();
+        
+        // Clear scene
+        while(scene.children.length > 0) {
+          scene.remove(scene.children[0]);
+        }
+        
+        // Reset initialization flag LAST
         sceneInitialized.current = false;
+        console.log('Cleanup complete');
       };
       
       cleanupFn.current = cleanup;
@@ -307,6 +355,19 @@ export default function CityBackground() {
         cleanupFn.current();
       }
     };
+  }, [canMount]);
+
+  // Add forced cleanup on visibility change (when tab is hidden)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && cleanupFn.current) {
+        console.log('Page hidden, cleaning up Three.js');
+        cleanupFn.current();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   return (
