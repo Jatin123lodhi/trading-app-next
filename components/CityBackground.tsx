@@ -321,18 +321,37 @@ export default function CityBackground() {
       
       {/* Loader */}
       <div
-        className={`fixed top-0 left-0 w-full h-full -z-10 flex items-center justify-center transition-opacity duration-500 ${
+        className={`fixed top-0 left-0 w-full h-full -z-10 flex items-center justify-center transition-opacity duration-700 ${
           isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
-        style={{ backgroundColor: '#F02050', cursor: 'crosshair' }}
+        style={{ backgroundColor: '#000000', cursor: 'crosshair' }}
       >
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-16 h-16">
-            {/* Spinning loader */}
-            <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-t-white border-r-white/60 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center gap-6">
+          {/* Animated loader with multiple rings */}
+          <div className="relative w-20 h-20">
+            {/* Outer ring */}
+            <div className="absolute inset-0 border-4 border-pink-500/30 rounded-full"></div>
+            {/* Middle spinning ring */}
+            <div className="absolute inset-2 border-4 border-t-pink-500 border-r-pink-400 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+            {/* Inner pulsing ring */}
+            <div className="absolute inset-4 border-4 border-red-500/50 rounded-full animate-pulse"></div>
+            {/* Center dot */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping"></div>
+            </div>
           </div>
-          <p className="text-white font-medium text-lg animate-pulse">Loading Experience...</p>
+          
+          {/* Loading text with gradient */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 font-bold text-xl animate-pulse">
+              Loading PredictX
+            </p>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import ConditionalBackground from "@/components/ConditionalBackground";
 import { Providers } from "./providers";
+import ConditionalHeader from "@/components/ConditionalHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <ConditionalBackground />
         <Providers>
+          <ConditionalHeader />
           {children}
         </Providers>
         <Toaster />

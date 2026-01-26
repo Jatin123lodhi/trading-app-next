@@ -133,3 +133,33 @@
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* Live Market Micro-interactions */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  }
+}
+
+@keyframes glow-red {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+}

@@ -24,7 +24,7 @@ API Routes Structure:
 ├── /api/stocks
 │   ├── GET /[symbol] - Get stock details
 │   └── GET /search?q={query} - Search stocks
-├── /api/market
+├── /api/markets
 │   └── GET /overview - Get market indices & top movers
 ├── /api/trading
 │   ├── POST /buy - Execute buy order

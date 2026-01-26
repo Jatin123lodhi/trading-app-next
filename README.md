@@ -118,7 +118,7 @@ Key implementations:
 - **Order Cancellation**: Atomic wallet unlock on order cancellation
 - **Settlement Algorithm**: Pool-based payout distribution across winners
 - **Bulk Operations**: Mass order/wallet updates using `bulkWrite` 
-- **Dynamic Routes**: GET `/api/market/[id]` and `/api/orders/[id]` endpoints
+- **Dynamic Routes**: GET `/api/markets/[id]` and `/api/orders/[id]` endpoints
 
 ### 🔥 Technical Challenge
 
@@ -365,4 +365,33 @@ const { data: markets = [], isLoading } = useQuery({
 
 ---
 *Day 11 complete - Data fetching, elevated! 🔄*
+
+# 🎨 Day 12: UI Polish & UX Refinements
+
+### ✅ Completed Features
+
+**Landing Page Redesign**: Overhauled the landing page with enhanced visual hierarchy and modern design patterns for better first impressions.
+
+**Profile Dropdown**: Added user profile dropdown component with quick access to account actions and navigation.
+
+**Live Price Animations**: Implemented micro-interactions showing real-time price updates with smooth transitions and visual feedback.
+
+**Market Details Improvements**: Enhanced the market page with better layout, clearer information architecture, and improved trading interface.
+
+**Route Fixes**: Resolved navigation issues in market routing for smoother page transitions.
+
+**Flash of Red Elimination**: Fixed the jarring red flash that appeared on initial page load by optimizing CSS loading order and component initialization.
+
+### 🔥 Technical Challenge
+
+Eliminating the red flash required tracing CSS cascade issues and component mount timing. The flash occurred due to Tailwind styles loading after initial paint, causing layout shifts with default browser styling showing first.
+
+### 📚 Key Learnings
+- CSS-in-JS loading optimization strategies
+- Dropdown component patterns with proper focus management
+- Animation frame timing for smooth price transitions
+- Layout shift prevention techniques
+
+---
+*Day 12 complete - Polished to perfection! ✨*
 *Building in public - One day at a time 💪*
