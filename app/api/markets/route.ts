@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import { createMarketSchema } from "@/lib/validations/market";
 import Market from "@/models/Market";
 import { NextResponse } from "next/server";
+import { formatValidationError } from "@/lib/utils";
 
 // creating a market
 export async function POST(request: Request) {
@@ -26,11 +27,7 @@ export async function POST(request: Request) {
     if (!result.success) {
       return NextResponse.json(
         {
-          message: result.error.issues,
-          errors: result.error.issues.map(issue => ({
-            field: issue.path.join('.'),
-            message: issue.message
-          }))
+          message: formatValidationError(result.error)
         },
         { status: 422 }
       ); // invalid input

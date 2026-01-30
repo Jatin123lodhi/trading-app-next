@@ -7,6 +7,7 @@ import { z } from "zod";
 import Order from "@/models/Order";
 import Wallet from "@/models/Wallet";
 import PlatformRevenue from "@/models/PlatformRevenue";
+import { formatValidationError } from "@/lib/utils";
 
 // get a single market
 export async function GET(
@@ -88,7 +89,7 @@ export async function PATCH(
     if (!result.success) {
       return NextResponse.json(
         {
-          message: result.error.issues,
+          message: formatValidationError(result.error),
         },
         { status: 400 }
       );

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { z } from "zod";
 import Wallet from "@/models/Wallet";
+import { formatValidationError } from "@/lib/utils";
 
 // add balance // I think this endpoint will be called by some payment service
 export async function POST(  
@@ -44,7 +45,7 @@ export async function POST(
     if (!result.success) {
       return NextResponse.json(
         {
-          message: result.error.issues,
+          message: formatValidationError(result.error),
         },
         { status: 400 }
       );

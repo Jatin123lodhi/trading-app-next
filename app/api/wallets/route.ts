@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import { createWalletSchema } from "@/lib/validations/wallet";
 import Wallet from "@/models/Wallet";
 import { NextResponse } from "next/server";
+import { formatValidationError } from "@/lib/utils";
 
 // create a wallet
 export async function POST(request: Request){
@@ -22,7 +23,7 @@ export async function POST(request: Request){
         const result = createWalletSchema.safeParse(body);
         if(!result.success){
             return NextResponse.json({
-                message: result.error.issues
+                message: formatValidationError(result.error)
             }, { status: 400})
         }
 

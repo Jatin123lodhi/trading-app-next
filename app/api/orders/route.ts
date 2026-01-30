@@ -6,6 +6,7 @@ import { verifyAuth } from "@/lib/auth";
 import Wallet from "@/models/Wallet";
 import Order from "@/models/Order";
 import { orderPlacementSchema } from "@/lib/validations/order";
+import { formatValidationError } from "@/lib/utils";
 
 // placing an order
 export async function POST(request: Request) {
@@ -25,9 +26,10 @@ export async function POST(request: Request) {
 
     // input validation
     const result = orderPlacementSchema.safeParse(body);
+    
     if(result.error){
       return NextResponse.json({
-        message: result.error.issues
+        message: formatValidationError(result.error)
       }, {status: 422})
     }
     const { marketId, amount, outcome, walletId } = result.data;
