@@ -13,6 +13,8 @@ const Login = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
+    const [isGuestLoading, setIsGuestLoading] = useState(false);
+    
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -37,6 +39,32 @@ const Login = () => {
         }
     }
 
+    const handleGuestLogin = async () => {
+        try {
+            setIsGuestLoading(true);
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                body: JSON.stringify({ 
+                    email: "user1@gmail.com", 
+                    password: "123" 
+                }),
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            toast.success("Logged in as guest");
+            localStorage.setItem("token", data.token);
+            const redirectTo = searchParams.get('redirect') || '/dashboard'
+            router.push(redirectTo);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
+        } finally {
+            setIsGuestLoading(false);
+        }
+    }
+
     return (
         <div className="relative text-white h-screen w-screen overflow-hidden" style={{ cursor: 'crosshair' }}>
             {/* Content Overlay */}
@@ -53,6 +81,23 @@ const Login = () => {
                     <Button disabled={isLoading} type="submit" className="mt-4 cursor-pointer flex items-center gap-2">
                        {isLoading ? <Spinner /> : null} 
                         Login</Button>
+                    <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-white/20" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-black/50 px-2 text-gray-400">Or</span>
+                        </div>
+                    </div>
+                    <Button 
+                        type="button"
+                        onClick={handleGuestLogin}
+                        disabled={isGuestLoading}
+                        className="cursor-pointer flex items-center gap-2 bg-transparent border border-pink-500/50 text-pink-400 hover:bg-pink-500/10 hover:border-pink-500 hover:text-pink-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        {isGuestLoading ? <Spinner /> : null}
+                        Login as Guest
+                    </Button>
                 </form>
                 <p className="text-sm text-center mt-4">Don&apos;t have an account? <Link href="/register" className="text-pink-500 hover:text-pink-400 hover:underline transition-colors">Register</Link></p>
             </div>

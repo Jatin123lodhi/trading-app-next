@@ -52,12 +52,19 @@ export default function Header() {
             }
             toast.success("Logged out successfully");
             localStorage.removeItem("token");
+            // Clear all queries from cache
+            queryClient.clear();
+            // Redirect to login page
             router.push("/login");
+            router.refresh();
         } catch (error) {
             console.error("Logout error:", error);
             toast.error("Failed to logout");
             localStorage.removeItem("token");
+            // Clear all queries from cache even on error
+            queryClient.clear();
             router.push("/login");
+            router.refresh();
         }
     };
 
