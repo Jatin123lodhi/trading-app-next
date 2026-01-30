@@ -7,6 +7,14 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Get currency symbol based on wallet currency
+    const getCurrencySymbol = (walletId: string | { _id: string; currency: string }) => {
+        if (typeof walletId === 'object' && walletId.currency) {
+            return walletId.currency === 'USD' ? '$' : '₹';
+        }
+        return '$'; // Default fallback
+    };
+
     useEffect(() => {
         const fetchOrders = async () => {
             setLoading(true);
@@ -124,7 +132,9 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
                         <div className="space-y-3">
                             <div>
                                 <p className="text-xs text-gray-500 uppercase tracking-wide">Amount</p>
-                                <p className="text-2xl font-bold text-gray-900">${Number(order.amount).toFixed(2)}</p>
+                                <p className="text-2xl font-bold text-gray-900">
+                                    {getCurrencySymbol(order.walletId)}{Number(order.amount).toFixed(2)}
+                                </p>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2 border-t border-gray-100">

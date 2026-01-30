@@ -157,7 +157,7 @@ export async function GET(request: Request){
     const filters: Record<string, string> = {};
     if(marketId) filters.marketId = marketId;
     
-    const orders = await Order.find({userId: auth.userId,...filters}); 
+    const orders = await Order.find({userId: auth.userId,...filters}).populate('walletId', 'currency'); 
     console.log(orders,' ---order in route')
     return NextResponse.json({
       message: "Order fetched!",

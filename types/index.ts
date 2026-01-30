@@ -38,7 +38,7 @@ export type Order = {
     _id: string;
     userId: string;
     marketId: string;
-    walletId: string;
+    walletId: string | { _id: string; currency: string };
     outcome: string;
     amount: string;
     status: string;
