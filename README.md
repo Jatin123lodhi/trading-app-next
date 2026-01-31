@@ -394,4 +394,33 @@ Eliminating the red flash required tracing CSS cascade issues and component moun
 
 ---
 *Day 12 complete - Polished to perfection! ✨*
+
+# 🚀 Day 13: Guest Access & Authentication
+
+### ✅ Features Added
+- **Guest Login**: Users can explore without registration
+- **Enhanced Auth Flow**: Improved login/register UX
+
+### 🔥 Challenge
+Implementing secure guest access while maintaining proper authentication state management.
+
+---
+*Day 13 complete - Welcome guests aboard! 🎉*
+
+# 🎨 Day 14: Dashboard Redesign & Portfolio
+
+### ✅ Features Added
+- **Dashboard Overhaul**: New color scheme, spacing, and visual hierarchy
+- **Trending Carousel**: Interactive carousel for trending markets
+- **Portfolio Enhancement**: Better layout and data visualization
+- **Design System**: Unified card design with consistent styling
+
+### 🎯 Key Improvements
+- Background: White → Soft gray for easier viewing
+- Stats Cards: Gray → Color-coded gradients for visual hierarchy
+- Trending: Static grid → Interactive carousel
+- Layout: Variable heights → Fixed, consistent spacing
+
+---
+*Day 14 complete - Dashboard transformed! ✨*
 *Building in public - One day at a time 💪*
