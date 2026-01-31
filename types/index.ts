@@ -37,12 +37,31 @@ export type Market = {
 export type Order = {
     _id: string;
     userId: string;
-    marketId: string;
+    marketId: string | { _id: string; title: string; status: string };
     walletId: string | { _id: string; currency: string };
     outcome: string;
-    amount: string;
+    amount: number;
     status: string;
-    createdAt: Date;
+    createdAt: string;
+};
+
+// Portfolio types
+export type PortfolioOverview = {
+    totalPortfolioValue: number;
+    totalBalance: number;
+    totalLockedBalance: number;
+    totalPnL: number;
+    winRate: number;
+    totalOrders: number;
+    wonOrders: number;
+    lostOrders: number;
+    pendingOrders: number;
+};
+
+export type PortfolioData = {
+    overview: PortfolioOverview;
+    orders: Order[];
+    wallets: Wallet[];
 };
 
 // API Response types

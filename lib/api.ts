@@ -41,12 +41,12 @@ export type ApiResponse<T = unknown> = {
 
 // Function overloads for apiClient
 export function apiClient<T>(url: string, options?: { method?: 'GET' }): Promise<T>;
-export function apiClient<T>(url: string, options: { method: 'POST' | 'PUT' | 'DELETE', data?: unknown }): Promise<ApiResponse<T>>;
+export function apiClient<T>(url: string, options: { method: 'POST' | 'PUT' | 'DELETE' | 'PATCH', data?: unknown }): Promise<ApiResponse<T>>;
 
 // Implementation
 export async function apiClient<T>(
     url: string,
-    options?: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE', data?: unknown }
+    options?: { method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH', data?: unknown }
 ): Promise<T | ApiResponse<T>> {
     const method = options?.method || 'GET';
     const response = await axiosInstance({
@@ -56,7 +56,7 @@ export async function apiClient<T>(
     });
     
     // For GET requests, return just the data
-    // For mutations (POST/PUT/DELETE), return full response (includes message)
+    // For mutations (POST/PUT/DELETE/PATCH), return full response (includes message)
     if (method === 'GET') {
         return response.data as T;
     }

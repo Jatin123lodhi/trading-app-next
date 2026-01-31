@@ -29,6 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.27.3",
     "jose": "^6.1.3",
     "jsonwebtoken": "^9.0.3",

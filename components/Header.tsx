@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,7 @@ import type { Wallet, User, CreateWalletData } from "@/types";
 
 export default function Header() {
     const router = useRouter();
+    const pathname = usePathname();
     const queryClient = useQueryClient();
 
     // Dialog states
@@ -76,6 +77,7 @@ export default function Header() {
             }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["wallets"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-infinite"] });
             toast.success("Wallet created successfully!");
             setCreateWalletDialogOpen(false);
             setNewWalletBalance("");
@@ -103,6 +105,7 @@ export default function Header() {
             }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["wallets"] });
+            queryClient.invalidateQueries({ queryKey: ["portfolio-infinite"] });
             toast.success("Balance added successfully!");
             setAddBalanceDialogOpen(false);
             setAddBalanceAmount("");
@@ -149,10 +152,51 @@ export default function Header() {
                         PredictX
                     </h1>
                 </Link>
-                <div className="flex items-center gap-4">
+                
+                <div className="flex items-center gap-6">
+                    {/* Navigation Links */}
+                    {user && (
+                        <nav className="flex items-center gap-4">
+                            <Link 
+                                href="/dashboard" 
+                                className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+                                    pathname === '/dashboard' 
+                                        ? 'bg-gray-900 text-white' 
+                                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                                }`}
+                            >
+                                Dashboard
+                            </Link>
+                            {user.role === "user" && (
+                                <Link 
+                                    href="/portfolio" 
+                                    className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+                                        pathname === '/portfolio' 
+                                            ? 'bg-gray-900 text-white' 
+                                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    Portfolio
+                                </Link>
+                            )}
+                            {user.role === "admin" && (
+                                <Link 
+                                    href="/create-market" 
+                                    className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
+                                        pathname === '/create-market' 
+                                            ? 'bg-gray-900 text-white' 
+                                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    Create Market
+                                </Link>
+                            )}
+                        </nav>
+                    )}
+
                     {/* Wallet Management Buttons for Users */}
                     {user?.role === "user" && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
                             <Button
                                 onClick={() => setCreateWalletDialogOpen(true)}
                                 variant="outline"
@@ -164,7 +208,7 @@ export default function Header() {
                             {wallets.length > 0 && (
                                 <Button
                                     onClick={() => {
-                                        setSelectedWallet(wallets[0]);
+                                        setSelectedWallet(null);
                                         setAddBalanceDialogOpen(true);
                                     }}
                                     variant="outline"
@@ -179,7 +223,8 @@ export default function Header() {
 
                     {/* User Profile Dropdown */}
                     {user && (
-                        <DropdownMenu>
+                        <div className="pl-4 border-l border-gray-200">
+                            <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
@@ -235,6 +280,7 @@ export default function Header() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                        </div>
                     )}
                 </div>
             </header>
@@ -304,20 +350,41 @@ export default function Header() {
                     <DialogHeader>
                         <DialogTitle>Add Balance</DialogTitle>
                         <DialogDescription>
-                            Add funds to your{" "}
-                            {selectedWallet?.currency || "selected"} wallet.
+                            Select a wallet and add funds to increase your balance.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <label className="text-sm font-medium">Select Wallet</label>
+                            <Select
+                                value={selectedWallet?._id || ""}
+                                onValueChange={(walletId) => {
+                                    const wallet = wallets.find(w => w._id === walletId);
+                                    setSelectedWallet(wallet || null);
+                                }}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Choose a wallet to add balance to" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {wallets.map((wallet) => (
+                                        <SelectItem key={wallet._id} value={wallet._id}>
+                                            {wallet.currency} - Balance: {wallet.currency === 'USD' ? '$' : '₹'}{wallet.balance.toFixed(2)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
                         {selectedWallet && (
                             <div className="bg-gray-50 p-3 rounded-lg">
                                 <p className="text-sm text-gray-600">Current Balance</p>
                                 <p className="text-2xl font-bold">
-                                    {selectedWallet.currency}{" "}
-                                    {selectedWallet.balance.toFixed(2)}
+                                    {selectedWallet.currency === 'USD' ? '$' : '₹'}{selectedWallet.balance.toFixed(2)}
                                 </p>
                             </div>
                         )}
+                        
                         <div className="grid gap-2">
                             <label className="text-sm font-medium">Amount to Add</label>
                             <Input
@@ -327,13 +394,14 @@ export default function Header() {
                                 onChange={(e) => setAddBalanceAmount(e.target.value)}
                                 min="0"
                                 step="0.01"
+                                disabled={!selectedWallet}
                             />
                         </div>
                     </div>
                     <DialogFooter>
                         <Button
                             onClick={handleAddBalance}
-                            disabled={addBalanceMutation.isPending}
+                            disabled={addBalanceMutation.isPending || !selectedWallet || !addBalanceAmount}
                             className="cursor-pointer"
                         >
                             {addBalanceMutation.isPending
