@@ -190,7 +190,7 @@ const Dashboard = () => {
                                 Top Volume
                             </Badge>
                         </div>
-                        <div className="relative overflow-hidden">
+                        <div className="relative overflow-hidden py-1">
                             <Carousel
                                 opts={{
                                     align: "start",
@@ -205,7 +205,7 @@ const Dashboard = () => {
                                         const yesProb = totalBets > 0 ? Math.round((market.totalBetAmount.yes / totalBets) * 100) : 50;
                                         
                                         return (
-                                            <CarouselItem key={market._id} className="pl-4 basis-full md:basis-[45%] lg:basis-[38%]">
+                                            <CarouselItem key={market._id} className="pl-4 basis-full md:basis-[45%] lg:basis-[38%] py-1">
                                             <Card 
                                                 onClick={() => router.push(`/market/${market._id}`)} 
                                                 className="cursor-pointer hover:shadow-lg transition-all duration-300 border border-gray-200 bg-white hover:border-gray-300 h-56 flex flex-col"
