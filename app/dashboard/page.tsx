@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import type { Market, User } from "@/types";
-import { Search, TrendingUp, Users, DollarSign, Activity, Filter, Clock, Target } from "lucide-react";
+import { Search, TrendingUp, Users, DollarSign, Activity, Filter, Clock, Target, BarChart3 } from "lucide-react";
 
 const Dashboard = () => {
     const router = useRouter();
@@ -95,6 +97,29 @@ const Dashboard = () => {
         };
     }, [markets]);
 
+    // Generate chart data for market volume trends
+    const chartData = useMemo(() => {
+        // Create mock data based on current markets for demonstration
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const variations = [0.8, 1.2, 0.9, 1.1, 1.3, 0.7, 1.0]; // Predefined variations
+        return days.map((day, index) => {
+            const baseVolume = dashboardStats.totalVolume / 7;
+            const volume = Math.max(0, Math.round(baseVolume * variations[index]));
+            return {
+                day,
+                volume,
+                markets: Math.max(1, Math.round(dashboardStats.openMarkets * variations[index]))
+            };
+        });
+    }, [dashboardStats]);
+
+    const chartConfig = {
+        volume: {
+            label: "Volume (₹)",
+            color: "hsl(var(--chart-1))",
+        },
+    };
+
 
 
     return (
@@ -175,6 +200,73 @@ const Dashboard = () => {
                                 </div>
                             </CardContent>
                         </Card>
+                    </div>
+                </div>
+
+                {/* Market Volume Chart Section */}
+                <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-gray-800 rounded-lg">
+                            <BarChart3 className="w-5 h-5 text-white" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900">Market Volume Trends</h2>
+                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 border-0">
+                            Last 7 Days
+                        </Badge>
+                    </div>
+                    <div className="h-80 w-full">
+                        <ChartContainer config={chartConfig} className="h-full w-full">
+                            <AreaChart
+                                data={chartData}
+                                width={800}
+                                height={300}
+                                margin={{
+                                    left: 20,
+                                    right: 20,
+                                    top: 20,
+                                    bottom: 20,
+                                }}
+                            >
+                                <defs>
+                                    <linearGradient id="fillVolume" x1="0" y1="0" x2="0" y2="1">
+                                        <stop
+                                            offset="5%"
+                                            stopColor="#6366f1"
+                                            stopOpacity={0.8}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="#6366f1"
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis
+                                    dataKey="day"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                />
+                                <YAxis
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    tickFormatter={(value) => `₹${value.toLocaleString()}`}
+                                />
+                                <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent />}
+                                />
+                                <Area
+                                    dataKey="volume"
+                                    type="natural"
+                                    fill="url(#fillVolume)"
+                                    fillOpacity={0.4}
+                                    stroke="#6366f1"
+                                    strokeWidth={2}
+                                />
+                            </AreaChart>
+                        </ChartContainer>
                     </div>
                 </div>
 
