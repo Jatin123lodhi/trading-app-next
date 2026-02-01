@@ -12,6 +12,13 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import type { Market, User } from "@/types";
+
+type VolumeTrend = {
+    day: string;
+    date: string;
+    volume: number;
+    markets: number;
+};
 import { Search, TrendingUp, Users, DollarSign, Activity, Filter, Clock, Target, BarChart3 } from "lucide-react";
 
 const Dashboard = () => {
@@ -36,6 +43,24 @@ const Dashboard = () => {
         queryFn: () => apiClient<Market[]>('/api/markets'), // function that fetches the data
         refetchInterval: status === 'open' ? 5000 : false, // auto polling when status is open
         enabled: !!user, // only run when user exists
+    })
+
+    // Fetch real volume trends data
+    const {
+        data: volumeTrends = [],
+    } = useQuery<VolumeTrend[]>({
+        queryKey: ["volume-trends"],
+        queryFn: async () => {
+            try {
+                const response = await apiClient<{message: string, data: VolumeTrend[]}>('/api/analytics/weekly-volume');
+                return response.data || [];
+            } catch (error) {
+                console.error('Error fetching volume trends:', error);
+                return [];
+            }
+        },
+        refetchInterval: 30000, // Refresh every 30 seconds
+        enabled: !!user,
     })
 
     // Filter and search markets
@@ -99,19 +124,28 @@ const Dashboard = () => {
 
     // Generate chart data for market volume trends
     const chartData = useMemo(() => {
-        // Create mock data based on current markets for demonstration
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const variations = [0.8, 1.2, 0.9, 1.1, 1.3, 0.7, 1.0]; // Predefined variations
-        return days.map((day, index) => {
-            const baseVolume = dashboardStats.totalVolume / 7;
-            const volume = Math.max(0, Math.round(baseVolume * variations[index]));
-            return {
-                day,
-                volume,
-                markets: Math.max(1, Math.round(dashboardStats.openMarkets * variations[index]))
-            };
-        });
-    }, [dashboardStats]);
+        if (volumeTrends.length > 0) {
+            // Use real volume data when available
+            return volumeTrends.map(trend => ({
+                day: trend.day,
+                volume: trend.volume,
+                markets: trend.markets || Math.max(1, Math.round(dashboardStats.openMarkets / 7))
+            }));
+        } else {
+            // Fallback to mock data when no real data exists
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const variations = [0.8, 1.2, 0.9, 1.1, 1.3, 0.7, 1.0]; // Predefined variations
+            return days.map((day, index) => {
+                const baseVolume = dashboardStats.totalVolume / 7;
+                const volume = Math.max(0, Math.round(baseVolume * variations[index]));
+                return {
+                    day,
+                    volume,
+                    markets: Math.max(1, Math.round(dashboardStats.openMarkets * variations[index]))
+                };
+            });
+        }
+    }, [volumeTrends, dashboardStats]);
 
     const chartConfig = {
         volume: {
