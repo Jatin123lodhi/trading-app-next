@@ -435,6 +435,7 @@ Implementing secure guest access while maintaining proper authentication state m
 MongoDB aggregation pipeline to group orders by date, sum daily volumes, and fill missing days with zeros for consistent 7-day visualization.
 
 **Impact**: Chart now shows actual daily trading volume (₹3,500, ₹18,200, ₹0...) instead of fake patterns, providing real business insights.
+<img width="1872" height="705" alt="image" src="https://github.com/user-attachments/assets/21f4f3a1-0d19-4ba7-bbca-8944665c46d4" />
 
 ---
 *Day 15 complete - Real data, real insights! 📊*
