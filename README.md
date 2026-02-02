@@ -438,4 +438,14 @@ MongoDB aggregation pipeline to group orders by date, sum daily volumes, and fil
 
 ---
 *Day 15 complete - Real data, real insights! 📊*
+
+# 🌓 Day 16: Dark & Light Theme
+
+### ✅ Features Added
+- **Theme Toggle**: Dark and light mode support with system preference detection
+- **UI Fixes**: Resolved minor styling inconsistencies across components
+- **UX Improvements**: Enhanced visual consistency and theme-aware components
+
+---
+*Day 16 complete - Theme switching unlocked! 🌓*
 *Building in public - One day at a time 💪*
