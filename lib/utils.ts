@@ -80,3 +80,21 @@ export function calculatePortfolioTotals(
     totalPortfolioValue: totalBalance + totalLockedBalance
   };
 }
+
+/**
+ * Capitalizes the first letter of each word in a category string
+ * @param category - The category string to capitalize
+ * @returns The capitalized category string
+ * @example
+ * // Returns: "Sports"
+ * capitalizeCategory("sports")
+ * // Returns: "Entertainment"
+ * capitalizeCategory("entertainment")
+ */
+export function capitalizeCategory(category: string): string {
+  if (!category) return category;
+  return category
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}

@@ -124,7 +124,7 @@
   }
 }
 
-/* Three.js City Background Styles */
+/* Glassmorphism Background Styles */
 .disable-selection {
   user-select: none;
   -moz-user-select: none;
@@ -146,20 +146,3 @@
   }
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(16, 185, 129, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-  }
-}
-
-@keyframes glow-red {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(239, 68, 68, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  }
-}

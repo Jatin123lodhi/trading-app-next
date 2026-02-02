@@ -10,12 +10,16 @@ import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 import type { Wallet, User, CreateWalletData } from "@/types";
 
 export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
     const queryClient = useQueryClient();
+    const { setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
     // Dialog states
     const [createWalletDialogOpen, setCreateWalletDialogOpen] = useState(false);
@@ -144,144 +148,161 @@ export default function Header() {
         });
     };
 
+    const handleThemeToggle = () => {
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+        setMounted(true);
+    };
+
     return (
         <>
-            <header className="bg-white border-b shadow-sm p-4 flex justify-between items-center">
-                <Link href="/dashboard" className="cursor-pointer">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 bg-clip-text text-transparent">
-                        PredictX
-                    </h1>
-                </Link>
-                
-                <div className="flex items-center gap-6">
-                    {/* Navigation Links */}
-                    {user && (
-                        <nav className="flex items-center gap-4">
-                            <Link 
-                                href="/dashboard" 
-                                className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
-                                    pathname === '/dashboard' 
-                                        ? 'bg-gray-900 text-white' 
-                                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                                }`}
-                            >
-                                Dashboard
-                            </Link>
-                            {user.role === "user" && (
-                                <Link 
-                                    href="/portfolio" 
-                                    className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
-                                        pathname === '/portfolio' 
-                                            ? 'bg-gray-900 text-white' 
-                                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    Portfolio
-                                </Link>
-                            )}
-                            {user.role === "admin" && (
-                                <Link 
-                                    href="/create-market" 
-                                    className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${
-                                        pathname === '/create-market' 
-                                            ? 'bg-gray-900 text-white' 
-                                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    Create Market
-                                </Link>
-                            )}
-                        </nav>
-                    )}
+            <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border px-4">
+                <div className="container mx-auto px-4 pt-2 pb-2 flex items-center justify-between">
+                    <Link href="/" className="cursor-pointer text-xl font-bold">
+                        TrueSplit
+                    </Link>
 
-                    {/* Wallet Management Buttons for Users */}
-                    {user?.role === "user" && (
-                        <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
-                            <Button
-                                onClick={() => setCreateWalletDialogOpen(true)}
-                                variant="outline"
-                                size="sm"
-                                className="cursor-pointer"
-                            >
-                                Create Wallet
-                            </Button>
-                            {wallets.length > 0 && (
+                    <div className="flex items-center gap-6">
+                        {/* Navigation Links */}
+                        {user && (
+                            <nav className="flex items-center gap-4">
+                                <Link
+                                    href="/dashboard"
+                                    className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/dashboard'
+                                        ? 'text-primary bg-card'
+                                        : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                        }`}
+                                >
+                                    Dashboard
+                                </Link>
+                                {user.role === "user" && (
+                                    <Link
+                                        href="/portfolio"
+                                        className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/portfolio'
+                                            ? 'text-primary bg-card'
+                                            : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                            }`}
+                                    >
+                                        Portfolio
+                                    </Link>
+                                )}
+                                {user.role === "admin" && (
+                                    <Link
+                                        href="/create-market"
+                                        className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/create-market'
+                                            ? 'text-primary bg-card'
+                                            : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                            }`}
+                                    >
+                                        Create Market
+                                    </Link>
+                                )}
+                            </nav>
+                        )}
+
+                        {/* Wallet Management Buttons for Users */}
+                        {user?.role === "user" && (
+                            <div className="flex items-center gap-2 pl-4 border-l border-border">
                                 <Button
-                                    onClick={() => {
-                                        setSelectedWallet(null);
-                                        setAddBalanceDialogOpen(true);
-                                    }}
+                                    onClick={() => setCreateWalletDialogOpen(true)}
                                     variant="outline"
                                     size="sm"
                                     className="cursor-pointer"
                                 >
-                                    Add Balance
+                                    Create Wallet
                                 </Button>
-                            )}
-                        </div>
-                    )}
-
-                    {/* User Profile Dropdown */}
-                    {user && (
-                        <div className="pl-4 border-l border-gray-200">
-                            <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="rounded-full cursor-pointer border"
-                                >
-                                    {user?.email?.[0]?.toUpperCase()}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="min-w-48" align="end">
-                                <DropdownMenuLabel className="font-normal">
-                                    <div className="flex flex-col space-y-1">
-                                        <p className="text-sm font-medium leading-none">
-                                            {user?.email}
-                                        </p>
-                                        <p className="text-xs leading-none text-gray-500">
-                                            Role: {user?.role}
-                                        </p>
-                                    </div>
-                                </DropdownMenuLabel>
-
-                                {/* Wallet Summary */}
-                                {user?.role === "user" && wallets.length > 0 && (
-                                    <>
-                                        <DropdownMenuSeparator />
-                                        <div className="px-2 py-2">
-                                            <p className="text-xs font-semibold text-gray-600 mb-2">
-                                                Wallets
-                                            </p>
-                                            {wallets.map((wallet) => (
-                                                <div
-                                                    key={wallet._id}
-                                                    className="flex justify-between items-center py-1"
-                                                >
-                                                    <span className="text-xs text-gray-600">
-                                                        {wallet.currency}
-                                                    </span>
-                                                    <span className="text-xs font-semibold">
-                                                        {wallet.balance.toFixed(2)}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
+                                {wallets.length > 0 && (
+                                    <Button
+                                        onClick={() => {
+                                            setSelectedWallet(null);
+                                            setAddBalanceDialogOpen(true);
+                                        }}
+                                        variant="outline"
+                                        size="sm"
+                                        className="cursor-pointer"
+                                    >
+                                        Add Balance
+                                    </Button>
                                 )}
+                            </div>
+                        )}
 
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={handleLogout}
-                                    className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50"
-                                >
-                                    Logout
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </div>
-                    )}
+                        {/* Theme Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleThemeToggle}
+                            className="h-8 w-8 text-muted-foreground hover:bg-card hover:text-primary cursor-pointer"
+                            aria-label="Toggle dark mode"
+                        >
+                            {mounted && resolvedTheme === "dark" ? (
+                                <Sun className="h-4 w-4" />
+                            ) : (
+                                <Moon className="h-4 w-4" />
+                            )}
+                        </Button>
+
+                        {/* User Profile Dropdown */}
+                        {user && (
+                            <div className="pl-4 border-l border-border">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full cursor-pointer border"
+                                        >
+                                            {user?.email?.[0]?.toUpperCase()}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="min-w-48" align="end">
+                                        <DropdownMenuLabel className="font-normal">
+                                            <div className="flex flex-col space-y-1">
+                                                <p className="text-sm font-medium leading-none">
+                                                    {user?.email}
+                                                </p>
+                                                <p className="text-xs leading-none text-muted-foreground">
+                                                    Role: {user?.role}
+                                                </p>
+                                            </div>
+                                        </DropdownMenuLabel>
+
+                                        {/* Wallet Summary */}
+                                        {user?.role === "user" && wallets.length > 0 && (
+                                            <>
+                                                <DropdownMenuSeparator />
+                                                <div className="px-2 py-2">
+                                                    <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                                        Wallets
+                                                    </p>
+                                                    {wallets.map((wallet) => (
+                                                        <div
+                                                            key={wallet._id}
+                                                            className="flex justify-between items-center py-1"
+                                                        >
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {wallet.currency}
+                                                            </span>
+                                                            <span className="text-xs font-semibold">
+                                                                {wallet.balance.toFixed(2)}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            onClick={handleLogout}
+                                            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950"
+                                        >
+                                            Logout
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -321,12 +342,18 @@ export default function Header() {
                                 Initial Balance
                             </label>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 placeholder="0.00"
                                 value={newWalletBalance}
-                                onChange={(e) => setNewWalletBalance(e.target.value)}
-                                min="0"
-                                step="0.01"
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    // allow only numbers + one decimal
+                                    if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                        setNewWalletBalance(value);
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -363,8 +390,8 @@ export default function Header() {
                                     setSelectedWallet(wallet || null);
                                 }}
                             >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Choose a wallet to add balance to" />
+                                <SelectTrigger className="cursor-pointer w-full">
+                                    <SelectValue placeholder="Select a wallet" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {wallets.map((wallet) => (
@@ -375,26 +402,33 @@ export default function Header() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        
+
                         {selectedWallet && (
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-sm text-gray-600">Current Balance</p>
-                                <p className="text-2xl font-bold">
+                            <div className="bg-muted p-3 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Current Balance</p>
+                                <p className="text-2xl font-bold text-foreground">
                                     {selectedWallet.currency === 'USD' ? '$' : '₹'}{selectedWallet.balance.toFixed(2)}
                                 </p>
                             </div>
                         )}
-                        
+
                         <div className="grid gap-2">
                             <label className="text-sm font-medium">Amount to Add</label>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 placeholder="0.00"
                                 value={addBalanceAmount}
-                                onChange={(e) => setAddBalanceAmount(e.target.value)}
-                                min="0"
-                                step="0.01"
                                 disabled={!selectedWallet}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    // Allow only numbers with up to 2 decimals
+                                    if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                        setAddBalanceAmount(value);
+                                    }
+                                }}
+                                onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
                     </div>

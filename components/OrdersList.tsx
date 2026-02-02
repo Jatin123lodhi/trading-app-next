@@ -40,30 +40,30 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
         switch (status) {
             case 'pending':
                 return (
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-900 border border-gray-300">
-                        <span className="w-2 h-2 bg-black rounded-full animate-pulse" />
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-card text-primary border border-border">
+                        <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                         Pending
                     </span>
                 );
             case 'won':
                 return (
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-900 border border-gray-300">
-                        <span className="w-2 h-2 bg-black rounded-full" />
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-card text-primary border border-border">
+                        <span className="w-2 h-2 bg-primary rounded-full" />
                         Won
                     </span>
                 );
             case 'lost':
                 return (
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-900 border border-gray-300">
-                        <span className="w-2 h-2 bg-black rounded-full" />
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-card text-primary border border-border">
+                        <span className="w-2 h-2 bg-primary rounded-full" />
                         Lost
                     </span>
                 );
             default:
                 return (
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-900 border border-gray-300">
-                        <span className="w-2 h-2 bg-black rounded-full" />
-                        {status}
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-card text-primary border border-border">
+                        <span className="w-2 h-2 bg-primary rounded-full capitalize" />
+                        <span className="capitalize">{status}</span>
                     </span>
                 );
         }
@@ -73,14 +73,14 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
     const getOutcomeBadge = (outcome: string) => {
         if (outcome === 'Yes') {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-semibold bg-white text-gray-900 border border-gray-300">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-semibold bg-card text-primary border border-border">
                     <TrendingUp className="w-4 h-4" />
                     Yes
                 </span>
             );
         } else {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-semibold bg-gray-900 text-white border border-gray-900">
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-sm font-semibold bg-primary text-primary-foreground border border-primary">
                     <TrendingUp className="w-4 h-4 rotate-180" />
                     No
                 </span>
@@ -91,18 +91,18 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
     if (loading) {
         return (
             <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                <p className="mt-2 text-sm text-gray-500">Loading orders...</p>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="mt-2 text-sm text-muted-foreground">Loading orders...</p>
             </div>
         );
     }
 
     if (orders.length === 0) {
         return (
-            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <h3 className="text-lg font-semibold text-gray-700 mb-1">No Orders Yet</h3>
-                <p className="text-sm text-gray-500">Orders placed on this market will appear here</p>
+            <div className="text-center py-12 bg-muted rounded-lg border-2 border-dashed border-border">
+                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <h3 className="text-lg font-semibold text-primary mb-1">No Orders Yet</h3>
+                <p className="text-sm text-muted-foreground">Orders placed on this market will appear here</p>
             </div>
         );
     }
@@ -110,8 +110,8 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-gray-900">Your Orders</h3>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <h3 className="text-xl font-bold text-primary">Your Orders</h3>
+                <span className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
                     {orders.length} {orders.length === 1 ? 'Order' : 'Orders'}
                 </span>
             </div>
@@ -120,7 +120,7 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
                 {orders.map((order) => (
                     <div 
                         key={order._id} 
-                        className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
+                        className="bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
                     >
                         {/* Header with outcome and status */}
                         <div className="flex items-center justify-between mb-4">
@@ -131,17 +131,17 @@ const OrdersList = ({ marketId, refreshTrigger }: { marketId: string, refreshTri
                         {/* Order details */}
                         <div className="space-y-3">
                             <div>
-                                <p className="text-xs text-gray-500 uppercase tracking-wide">Amount</p>
-                                <p className="text-2xl font-bold text-gray-900">
+                                <p className="text-xs text-muted-foreground uppercase tracking-wide">Amount</p>
+                                <p className="text-2xl font-bold text-primary">
                                     {getCurrencySymbol(order.walletId)}{Number(order.amount).toFixed(2)}
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-                                <Calendar className="w-4 h-4 text-gray-400" />
+                            <div className="flex items-center gap-2 pt-2 border-t border-border">
+                                <Calendar className="w-4 h-4 text-muted-foreground" />
                                 <div>
-                                    <p className="text-xs text-gray-500">Placed on</p>
-                                    <p className="text-sm font-medium text-gray-700">
+                                    <p className="text-xs text-muted-foreground">Placed on</p>
+                                    <p className="text-sm font-medium text-foreground">
                                         {new Date(order.createdAt).toLocaleDateString('en-US', {
                                             year: 'numeric',
                                             month: 'short',

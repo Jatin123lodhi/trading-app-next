@@ -5,46 +5,44 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="relative text-white h-screen w-screen overflow-hidden" style={{ cursor: 'crosshair' }}>
-      {/* Content Overlay */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-screen disable-selection">
-        <div className="bg-black/50 backdrop-blur-md border border-white/20 shadow-2xl p-12 rounded-2xl">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-6xl font-extrabold mb-4 text-center tracking-tight"
-          >
-            <span className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 bg-clip-text text-transparent">
-              PredictX
-            </span>
-          </motion.h1>
-         
-          <p className="text-xl my-8 text-center text-gray-300 animate-fade-in animation-delay-200">
-            Binary Prediction Trading Platform
-          </p>
+    <div className="relative bg-background text-foreground h-screen w-screen overflow-hidden">
+      <div className="relative z-10 flex flex-col items-center justify-center h-screen disable-selection max-w-4xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-8"
+        >
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-primary">
+              TrueSplit
+            </h1>
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              A set of beautifully designed prediction markets that you can trade on, 
+              analyze, and profit from. Start here then make it your own.
+            </p>
+          </div>
           
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Link href="/login" prefetch={true}>
               <Button 
-                className="hover:scale-105 hover:shadow-lg hover:shadow-red-500/50 
-                  transition-all duration-300 cursor-pointer bg-black hover:bg-red-900/40 
-                  border border-white/10 rounded-full px-6"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 border-0 rounded-md px-6 py-2.5
+                  transition-all duration-200 font-medium cursor-pointer text-sm"
               >
-                Login
+                Get Started
               </Button>
             </Link>
             <Link href="/register" prefetch={true}>
               <Button 
-                className="hover:scale-105 hover:shadow-lg hover:shadow-red-500/50 
-                  transition-all duration-300 cursor-pointer bg-black hover:bg-red-900/40 
-                  border border-white/10 rounded-full px-6"
+                className="bg-transparent text-foreground border border-border hover:bg-muted 
+                  rounded-md px-6 py-2.5 transition-all duration-200 font-medium cursor-pointer text-sm
+                  hover:text-foreground"
               >
-                Register
+                View Markets
               </Button>
             </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

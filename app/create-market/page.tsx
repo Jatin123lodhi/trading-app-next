@@ -45,7 +45,7 @@ const CreateMarket = () => {
     }
 
     return (
-    <div className="p-4">
+    <div className="p-4 pt-20">
         <h1 className="text-2xl font-bold">Create Market</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-4 ">
             <div className="flex flex-col gap-2">

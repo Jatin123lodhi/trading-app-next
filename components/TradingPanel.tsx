@@ -130,10 +130,10 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
         <div className="space-y-6">
             {user?.role === 'user' ? (
                 <div>
-                    <h3 className="text-xl font-bold mb-6 text-gray-900">Place Your Bet</h3>
+                    <h3 className="text-xl font-bold mb-6 text-primary">Place Your Bet</h3>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 Amount
                             </label>
                             <Input
@@ -145,7 +145,7 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-foreground mb-2">
                                 Select Wallet
                             </label>
                             <WalletSelect selectedWallet={selectedWallet} setSelectedWallet={setSelectedWallet} />
@@ -155,14 +155,14 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
                                 onClick={() => handleOrder("Yes")}
                                 disabled={placeOrderMutation.isPending || !amount || !selectedWallet}
                                 variant="outline"
-                                className="w-full cursor-pointer bg-white hover:bg-gray-50 text-gray-900 border-gray-300 font-semibold py-3"
+                                className="w-full cursor-pointer font-semibold py-3 border-border"
                             >
                                 {placeOrderMutation.isPending ? "Processing..." : "Buy Yes"}
                             </Button>
                             <Button
                                 onClick={() => handleOrder("No")}
                                 disabled={placeOrderMutation.isPending || !amount || !selectedWallet}
-                                className="w-full cursor-pointer bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3"
+                                className="w-full cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-3"
                             >
                                 {placeOrderMutation.isPending ? "Processing..." : "Buy No"}
                             </Button>
@@ -171,16 +171,16 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
                 </div>
             ) : market.status === 'closed' ? (
                 <div className="text-center py-4">
-                    <h3 className="font-bold text-lg text-gray-700">Market is Closed</h3>
-                    <p className="text-sm text-gray-500 mt-2">Awaiting settlement by admin</p>
+                    <h3 className="font-bold text-lg text-primary">Market is Closed</h3>
+                    <p className="text-sm text-muted-foreground mt-2">Awaiting settlement by admin</p>
                 </div>
             ) : (
                 <div>
-                    <h3 className="text-xl font-bold mb-4 text-gray-900">Settle Market</h3>
-                    <p className="text-sm text-gray-600 mb-4">Choose the winning outcome to settle this market:</p>
+                    <h3 className="text-xl font-bold mb-4 text-primary">Settle Market</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Choose the winning outcome to settle this market:</p>
                     <div className="grid grid-cols-2 gap-3">
                         <Button 
-                            className="cursor-pointer bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3" 
+                            className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-3" 
                             onClick={() => handleSettleMarket("No")}
                             disabled={settleMarketMutation.isPending}
                         >
@@ -188,7 +188,7 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
                         </Button>
                         <Button 
                             variant="outline"
-                            className="cursor-pointer bg-white hover:bg-gray-50 text-gray-900 border-gray-300 font-semibold py-3" 
+                            className="cursor-pointer font-semibold py-3 border-border" 
                             onClick={() => handleSettleMarket("Yes")}
                             disabled={settleMarketMutation.isPending}
                         >
@@ -199,7 +199,7 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
             )}
             
             {/* Orders List */}
-            <div className="pt-6 border-t border-gray-200">
+            <div className="pt-6 border-t border-border">
                 <OrdersList marketId={market._id} refreshTrigger={refreshOrders} />
             </div>
         </div>
