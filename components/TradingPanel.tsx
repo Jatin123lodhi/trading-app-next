@@ -116,6 +116,10 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
     });
 
     const handleOrder = (outcome: "Yes" | "No") => {
+        if (amount.length > 7) {
+            toast.error("Aadhar or PAN card required for such large amounts! 😄");
+            return;
+        }
         placeOrderMutation.mutate({ outcome });
     };
 
@@ -137,10 +141,18 @@ export default function TradingPanel({ market }: { market: { _id: string, title:
                                 Amount
                             </label>
                             <Input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 placeholder="Enter amount"
                                 value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    // Allow only numbers with up to 2 decimals (no length restriction here)
+                                    if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                        setAmount(value);
+                                    }
+                                }}
+                                onWheel={(e) => e.currentTarget.blur()}
                                 className="w-full"
                             />
                         </div>

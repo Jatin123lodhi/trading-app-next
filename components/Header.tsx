@@ -121,6 +121,10 @@ export default function Header() {
     });
 
     const handleCreateWallet = () => {
+        if (newWalletBalance.length > 7) {
+            toast.error("Aadhar or PAN card required for such large amounts! 😄");
+            return;
+        }
         const balance = parseFloat(newWalletBalance);
         if (isNaN(balance) || balance < 0) {
             toast.error("Please enter a valid balance");
@@ -135,6 +139,10 @@ export default function Header() {
     const handleAddBalance = () => {
         if (!selectedWallet) {
             toast.error("No wallet selected");
+            return;
+        }
+        if (addBalanceAmount.length > 7) {
+            toast.error("Aadhar or PAN card required for such large amounts! 😄");
             return;
         }
         const amount = parseFloat(addBalanceAmount);
@@ -349,11 +357,12 @@ export default function Header() {
                                 onChange={(e) => {
                                     const value = e.target.value;
 
-                                    // allow only numbers + one decimal
+                                    // Allow only numbers with up to 2 decimals (no length restriction here)
                                     if (/^\d*\.?\d{0,2}$/.test(value)) {
                                         setNewWalletBalance(value);
                                     }
                                 }}
+                                onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
                     </div>
@@ -423,7 +432,7 @@ export default function Header() {
                                 onChange={(e) => {
                                     const value = e.target.value;
 
-                                    // Allow only numbers with up to 2 decimals
+                                    // Allow only numbers with up to 2 decimals (no length restriction here)
                                     if (/^\d*\.?\d{0,2}$/.test(value)) {
                                         setAddBalanceAmount(value);
                                     }
