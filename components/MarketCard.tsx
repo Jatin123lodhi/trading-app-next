@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
@@ -19,15 +20,29 @@ const MarketCard = ({ market, averageVolume }: MarketCardProps) => {
     const isLive = market.status === 'open';
     const isHot = totalBets > averageVolume;
 
+    // Format dates consistently to avoid hydration mismatch
+    const formattedDate = useMemo(() => {
+        const dateObj = typeof market.endDate === 'string' ? new Date(market.endDate) : market.endDate;
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        return `${day}/${month}/${year}`;
+    }, [market.endDate]);
+
+    const formattedDateShort = useMemo(() => {
+        const dateObj = typeof market.endDate === 'string' ? new Date(market.endDate) : market.endDate;
+        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }, [market.endDate]);
+
     return (
         <Card 
             key={market._id}
             onClick={() => router.push(`/market/${market._id}`)} 
             className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-card hover:scale-[1.02] group"
         >
-            <CardHeader className="pb-3">
-                <div className="flex items-start justify-between mb-2">
-                    <div className="flex gap-2">
+            <CardHeader className="pb-3 p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-2 gap-2">
+                    <div className="flex gap-1 sm:gap-2 flex-wrap">
                         <Badge 
                             variant={isLive ? "default" : "secondary"} 
                             className={`text-xs ${isLive ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
@@ -40,29 +55,30 @@ const MarketCard = ({ market, averageVolume }: MarketCardProps) => {
                             </Badge>
                         )}
                     </div>
-                    <div className="text-right">
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <div className="text-right flex-shrink-0">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 whitespace-nowrap">
                             <Clock className="w-3 h-3" />
-                            {new Date(market.endDate).toLocaleDateString()}
+                            <span className="hidden sm:inline">{formattedDate}</span>
+                            <span className="sm:hidden">{formattedDateShort}</span>
                         </p>
                     </div>
                 </div>
-                <CardTitle className="text-lg font-bold text-primary line-clamp-2 group-hover:text-primary transition-colors">
+                <CardTitle className="text-base sm:text-lg font-bold text-primary line-clamp-2 group-hover:text-primary transition-colors">
                     {market.title}
                 </CardTitle>
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                     {market.description}
                 </p>
             </CardHeader>
             
-            <CardContent className="pt-0">
-                <div className="flex items-center justify-between mb-4">
-                    <Badge variant="secondary" className="bg-muted text-muted-foreground">
+            <CardContent className="pt-0 p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4 gap-2">
+                    <Badge variant="secondary" className="bg-muted text-muted-foreground text-xs">
                         {capitalizeCategory(market.category)}
                     </Badge>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                         <p className="text-xs text-muted-foreground">Total Volume</p>
-                        <p className="text-sm font-bold text-primary">₹{totalBets.toLocaleString()}</p>
+                        <p className="text-xs sm:text-sm font-bold text-primary whitespace-nowrap">₹{totalBets.toLocaleString()}</p>
                     </div>
                 </div>
                 

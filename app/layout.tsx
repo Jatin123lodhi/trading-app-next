@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import { Providers } from "./providers";
 import ConditionalHeader from "@/components/ConditionalHeader";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,13 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white flex flex-col min-h-screen overflow-x-hidden`}
       >
         <Providers>
           <ConditionalHeader />
-          {children}
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
         </Providers>
         <Toaster />
       </body>

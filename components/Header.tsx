@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Menu, X } from "lucide-react";
 import type { Wallet, User, CreateWalletData } from "@/types";
 
 export default function Header() {
@@ -24,6 +24,7 @@ export default function Header() {
     // Dialog states
     const [createWalletDialogOpen, setCreateWalletDialogOpen] = useState(false);
     const [addBalanceDialogOpen, setAddBalanceDialogOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Wallet creation states
     const [newWalletCurrency, setNewWalletCurrency] = useState<"INR" | "USD">("INR");
@@ -164,17 +165,258 @@ export default function Header() {
     return (
         <>
             <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border px-4">
-                <div className="container mx-auto px-4 pt-2 pb-2 flex items-center justify-between">
-                    <Link href="/" className="cursor-pointer text-xl font-bold">
-                        TrueSplit
-                    </Link>
+                <div className="container mx-auto px-2 sm:px-4 pt-2 pb-2">
+                    <div className="flex items-center justify-between">
+                        <Link href="/" className="cursor-pointer text-lg sm:text-xl font-bold">
+                            TrueSplit
+                        </Link>
 
-                    <div className="flex items-center gap-6">
-                        {/* Navigation Links */}
-                        {user && (
-                            <nav className="flex items-center gap-4">
+                        {/* Desktop Navigation */}
+                        <div className="hidden md:flex items-center gap-4 lg:gap-6">
+                            {/* Navigation Links */}
+                            {user && (
+                                <nav className="flex items-center gap-2 lg:gap-4">
+                                    <Link
+                                        href="/dashboard"
+                                        className={`px-2 lg:px-3 py-2 rounded-md font-medium transition-colors cursor-pointer text-sm lg:text-base ${pathname === '/dashboard'
+                                            ? 'text-primary bg-card'
+                                            : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                            }`}
+                                    >
+                                        Dashboard
+                                    </Link>
+                                    {user.role === "user" && (
+                                        <Link
+                                            href="/portfolio"
+                                            className={`px-2 lg:px-3 py-2 rounded-md font-medium transition-colors cursor-pointer text-sm lg:text-base ${pathname === '/portfolio'
+                                                ? 'text-primary bg-card'
+                                                : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                                }`}
+                                        >
+                                            Portfolio
+                                        </Link>
+                                    )}
+                                    {user.role === "admin" && (
+                                        <Link
+                                            href="/create-market"
+                                            className={`px-2 lg:px-3 py-2 rounded-md font-medium transition-colors cursor-pointer text-sm lg:text-base ${pathname === '/create-market'
+                                                ? 'text-primary bg-card'
+                                                : 'text-muted-foreground hover:text-primary hover:bg-card'
+                                                }`}
+                                        >
+                                            Create Market
+                                        </Link>
+                                    )}
+                                </nav>
+                            )}
+
+                            {/* Wallet Management Buttons for Users */}
+                            {user?.role === "user" && (
+                                <div className="flex items-center gap-2 pl-2 lg:pl-4 border-l border-border">
+                                    <Button
+                                        onClick={() => setCreateWalletDialogOpen(true)}
+                                        variant="outline"
+                                        size="sm"
+                                        className="cursor-pointer text-xs lg:text-sm px-2 lg:px-4"
+                                    >
+                                        <span className="hidden lg:inline">Create Wallet</span>
+                                        <span className="lg:hidden">Create</span>
+                                    </Button>
+                                    {wallets.length > 0 && (
+                                        <Button
+                                            onClick={() => {
+                                                setSelectedWallet(null);
+                                                setAddBalanceDialogOpen(true);
+                                            }}
+                                            variant="outline"
+                                            size="sm"
+                                            className="cursor-pointer text-xs lg:text-sm px-2 lg:px-4"
+                                        >
+                                            <span className="hidden lg:inline">Add Balance</span>
+                                            <span className="lg:hidden">Add</span>
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Theme Toggle */}
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleThemeToggle}
+                                className="h-8 w-8 text-muted-foreground hover:bg-card hover:text-primary cursor-pointer"
+                                aria-label="Toggle dark mode"
+                            >
+                                {mounted && resolvedTheme === "dark" ? (
+                                    <Sun className="h-4 w-4" />
+                                ) : (
+                                    <Moon className="h-4 w-4" />
+                                )}
+                            </Button>
+
+                            {/* User Profile Dropdown */}
+                            {user && (
+                                <div className="pl-2 lg:pl-4 border-l border-border">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="rounded-full cursor-pointer border h-8 w-8"
+                                            >
+                                                {user?.email?.[0]?.toUpperCase()}
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="min-w-48" align="end">
+                                            <DropdownMenuLabel className="font-normal">
+                                                <div className="flex flex-col space-y-1">
+                                                    <p className="text-sm font-medium leading-none">
+                                                        {user?.email}
+                                                    </p>
+                                                    <p className="text-xs leading-none text-muted-foreground">
+                                                        Role: {user?.role}
+                                                    </p>
+                                                </div>
+                                            </DropdownMenuLabel>
+
+                                            {/* Wallet Summary */}
+                                            {user?.role === "user" && wallets.length > 0 && (
+                                                <>
+                                                    <DropdownMenuSeparator />
+                                                    <div className="px-2 py-2">
+                                                        <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                                            Wallets
+                                                        </p>
+                                                        {wallets.map((wallet) => (
+                                                            <div
+                                                                key={wallet._id}
+                                                                className="flex justify-between items-center py-1"
+                                                            >
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {wallet.currency}
+                                                                </span>
+                                                                <span className="text-xs font-semibold">
+                                                                    {wallet.balance.toFixed(2)}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onClick={handleLogout}
+                                                className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950"
+                                            >
+                                                Logout
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="flex md:hidden items-center gap-2">
+                            {user && (
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={handleThemeToggle}
+                                        className="h-8 w-8 text-muted-foreground hover:bg-card hover:text-primary cursor-pointer"
+                                        aria-label="Toggle dark mode"
+                                    >
+                                        {mounted && resolvedTheme === "dark" ? (
+                                            <Sun className="h-4 w-4" />
+                                        ) : (
+                                            <Moon className="h-4 w-4" />
+                                        )}
+                                    </Button>
+                                    {user && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="rounded-full cursor-pointer border h-8 w-8"
+                                                >
+                                                    {user?.email?.[0]?.toUpperCase()}
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent className="min-w-48" align="end">
+                                                <DropdownMenuLabel className="font-normal">
+                                                    <div className="flex flex-col space-y-1">
+                                                        <p className="text-sm font-medium leading-none">
+                                                            {user?.email}
+                                                        </p>
+                                                        <p className="text-xs leading-none text-muted-foreground">
+                                                            Role: {user?.role}
+                                                        </p>
+                                                    </div>
+                                                </DropdownMenuLabel>
+
+                                                {/* Wallet Summary */}
+                                                {user?.role === "user" && wallets.length > 0 && (
+                                                    <>
+                                                        <DropdownMenuSeparator />
+                                                        <div className="px-2 py-2">
+                                                            <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                                                Wallets
+                                                            </p>
+                                                            {wallets.map((wallet) => (
+                                                                <div
+                                                                    key={wallet._id}
+                                                                    className="flex justify-between items-center py-1"
+                                                                >
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {wallet.currency}
+                                                                    </span>
+                                                                    <span className="text-xs font-semibold">
+                                                                        {wallet.balance.toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </>
+                                                )}
+
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    onClick={handleLogout}
+                                                    className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950"
+                                                >
+                                                    Logout
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                        className="h-8 w-8 text-muted-foreground hover:bg-card hover:text-primary cursor-pointer"
+                                        aria-label="Toggle menu"
+                                    >
+                                        {mobileMenuOpen ? (
+                                            <X className="h-5 w-5" />
+                                        ) : (
+                                            <Menu className="h-5 w-5" />
+                                        )}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    {mobileMenuOpen && user && (
+                        <div className="md:hidden mt-4 pb-4 border-t border-border pt-4">
+                            <nav className="flex flex-col gap-2">
                                 <Link
                                     href="/dashboard"
+                                    onClick={() => setMobileMenuOpen(false)}
                                     className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/dashboard'
                                         ? 'text-primary bg-card'
                                         : 'text-muted-foreground hover:text-primary hover:bg-card'
@@ -185,6 +427,7 @@ export default function Header() {
                                 {user.role === "user" && (
                                     <Link
                                         href="/portfolio"
+                                        onClick={() => setMobileMenuOpen(false)}
                                         className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/portfolio'
                                             ? 'text-primary bg-card'
                                             : 'text-muted-foreground hover:text-primary hover:bg-card'
@@ -196,6 +439,7 @@ export default function Header() {
                                 {user.role === "admin" && (
                                     <Link
                                         href="/create-market"
+                                        onClick={() => setMobileMenuOpen(false)}
                                         className={`px-3 py-2 rounded-md font-medium transition-colors cursor-pointer ${pathname === '/create-market'
                                             ? 'text-primary bg-card'
                                             : 'text-muted-foreground hover:text-primary hover:bg-card'
@@ -204,113 +448,38 @@ export default function Header() {
                                         Create Market
                                     </Link>
                                 )}
-                            </nav>
-                        )}
-
-                        {/* Wallet Management Buttons for Users */}
-                        {user?.role === "user" && (
-                            <div className="flex items-center gap-2 pl-4 border-l border-border">
-                                <Button
-                                    onClick={() => setCreateWalletDialogOpen(true)}
-                                    variant="outline"
-                                    size="sm"
-                                    className="cursor-pointer"
-                                >
-                                    Create Wallet
-                                </Button>
-                                {wallets.length > 0 && (
-                                    <Button
-                                        onClick={() => {
-                                            setSelectedWallet(null);
-                                            setAddBalanceDialogOpen(true);
-                                        }}
-                                        variant="outline"
-                                        size="sm"
-                                        className="cursor-pointer"
-                                    >
-                                        Add Balance
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Theme Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleThemeToggle}
-                            className="h-8 w-8 text-muted-foreground hover:bg-card hover:text-primary cursor-pointer"
-                            aria-label="Toggle dark mode"
-                        >
-                            {mounted && resolvedTheme === "dark" ? (
-                                <Sun className="h-4 w-4" />
-                            ) : (
-                                <Moon className="h-4 w-4" />
-                            )}
-                        </Button>
-
-                        {/* User Profile Dropdown */}
-                        {user && (
-                            <div className="pl-4 border-l border-border">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
+                                {user.role === "user" && (
+                                    <div className="flex flex-col gap-2 pt-2 border-t border-border">
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="rounded-full cursor-pointer border"
+                                            onClick={() => {
+                                                setCreateWalletDialogOpen(true);
+                                                setMobileMenuOpen(false);
+                                            }}
+                                            variant="outline"
+                                            size="sm"
+                                            className="cursor-pointer w-full justify-start"
                                         >
-                                            {user?.email?.[0]?.toUpperCase()}
+                                            Create Wallet
                                         </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="min-w-48" align="end">
-                                        <DropdownMenuLabel className="font-normal">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none">
-                                                    {user?.email}
-                                                </p>
-                                                <p className="text-xs leading-none text-muted-foreground">
-                                                    Role: {user?.role}
-                                                </p>
-                                            </div>
-                                        </DropdownMenuLabel>
-
-                                        {/* Wallet Summary */}
-                                        {user?.role === "user" && wallets.length > 0 && (
-                                            <>
-                                                <DropdownMenuSeparator />
-                                                <div className="px-2 py-2">
-                                                    <p className="text-xs font-semibold text-muted-foreground mb-2">
-                                                        Wallets
-                                                    </p>
-                                                    {wallets.map((wallet) => (
-                                                        <div
-                                                            key={wallet._id}
-                                                            className="flex justify-between items-center py-1"
-                                                        >
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {wallet.currency}
-                                                            </span>
-                                                            <span className="text-xs font-semibold">
-                                                                {wallet.balance.toFixed(2)}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </>
+                                        {wallets.length > 0 && (
+                                            <Button
+                                                onClick={() => {
+                                                    setSelectedWallet(null);
+                                                    setAddBalanceDialogOpen(true);
+                                                    setMobileMenuOpen(false);
+                                                }}
+                                                variant="outline"
+                                                size="sm"
+                                                className="cursor-pointer w-full justify-start"
+                                            >
+                                                Add Balance
+                                            </Button>
                                         )}
-
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                            onClick={handleLogout}
-                                            className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-950 dark:focus:bg-red-950"
-                                        >
-                                            Logout
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                        )}
-                    </div>
+                                    </div>
+                                )}
+                            </nav>
+                        </div>
+                    )}
                 </div>
             </header>
 
